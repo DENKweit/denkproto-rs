@@ -1,0 +1,123 @@
+// Definition of Model File Structure
+// Version 0.2
+
+syntax = "proto3";
+
+package modelfile.v1;
+
+option go_package = "denkproto-go/modelfile/v1";
+
+option csharp_namespace = "DENK.Proto.Modelfile.V1";
+
+enum FileType {
+	FT_MODEL        = 0;
+	FT_VIZIOTIX_KEY = 1;
+	FT_ZXING_KEY    = 2;
+}
+
+enum CompressionMethod {
+	NONE = 0;
+	GZIP = 1;
+	ZLIB = 2;
+	LZMA = 3;
+	BZ2  = 4;
+}
+
+enum DataType {
+	SCALAR_INT                              =  0; // UNUSED
+	SCALAR_FLOAT                            =  1; // image classifier
+	IMAGE_RAW_INT                           =  2; // UNUSED
+	IMAGE_RAW_FLOAT                         =  3; // segmentation map for models with one segmentationmap
+	IMAGE_PNG                               =  4; // UNUSED
+	IMAGE_JPG                               =  5; // UNUSED
+	IMAGE_TIF                               =  6; // UNUSED
+	BOUNDING_BOX_LIST                       =  7;
+	BOUNDING_BOX_LIST_SEGMENTATION          =  8;
+	BOUNDING_BOX_LIST_SEGMENTATION_HIGH_RES =  9;
+	OPTICAL_CHARACTER_RECOGNITION           = 10;
+	BARCODES                                = 11;
+}
+
+// Keep in sync with results.proto
+enum ModelType {
+	REGULAR         = 0;
+	AREA_DEFINITION = 1;
+}
+
+enum ModelOutputType {
+	TYPE_UNKNOWN                       = 0;
+	TYPE_CLASSIFICATION                = 1;
+	TYPE_SEGMENTATION                  = 2;
+	TYPE_INSTANCE_SEGMENTATION         = 3;
+	TYPE_OBJECT_DETECTION              = 4;
+	TYPE_ANOMALY_DETECTION             = 5;
+	TYPE_OPTICAL_CHARACTER_RECOGNITION = 6;
+}
+
+message RegionFromEdge {
+	double left   = 1;
+	double right  = 2;
+	double top    = 3;
+	double bottom = 4;
+}
+
+message FeatureClass {
+	         string feature_uid  = 1;
+	         string feature_name = 2;
+	repeated int32  color        = 3;
+	         string feature_tag  = 4;
+}
+
+message InputField {
+	         string         label              =  1;
+	         DataType       datatype           =  2;
+	         int32          image_w            =  3; // Expectations of network (image restrictions so that it runs without error)
+	         int32          image_h            =  4;
+	         int32          image_c            =  5;
+	repeated RegionFromEdge region_of_interest =  6;
+	         int32          training_image_w   =  8; // Image size with which the network has been trained
+	         int32          training_image_h   =  9;
+	         int32          training_image_c   = 10;
+}
+
+message OcrFormatRestrictionBlock {
+	uint32 number_of_characters = 1; // 0 -> unlimited, only allowed for last element of array
+	bytes  allowed_characters   = 2;
+}
+
+message OutputField {
+	         string                    label                   =  1;
+	         DataType                  datatype                =  2;
+	repeated int32                     color                   =  3;
+	         int32                     image_w                 =  4;
+	         int32                     image_h                 =  5;
+	         int32                     image_c                 =  6;
+	repeated FeatureClass              classes                 =  7;
+	         int32                     max_queries             =  8;
+	         bytes                     charset                 =  9;
+	         bytes                     charset_filter          = 10;
+	repeated OcrFormatRestrictionBlock ocr_format_restrictions = 11;
+}
+
+message ModelFile {
+	         string            protocol_version   =  1;
+	         bytes             model              =  2;
+	         CompressionMethod compression_method =  3;
+	         string            model_hash_blake2b =  4;
+	repeated InputField        input              =  5;
+	repeated OutputField       output             =  6;
+	         string            tenant             =  7;
+	         string            model_label        =  8;
+	         string            model_tag          =  9;
+	         int32             model_id           = 10;
+	         int64             creation_timestamp = 11;
+	         string            tenant_id          = 12;
+	         int32             onnx_version_major = 13;
+	         int32             onnx_version_minor = 14;
+			 string            model_uid          = 15;
+			 int64             model_timestamp    = 16;
+			 ModelType         model_type         = 17;
+			 ModelOutputType   model_output_type  = 18;
+			 FileType          file_type          = 19;
+			 string            key                = 20;
+}

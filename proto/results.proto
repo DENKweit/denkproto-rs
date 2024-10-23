@@ -1,0 +1,277 @@
+// Definition of Results Structure
+// Version 0.1
+
+syntax = "proto3";
+
+package results;
+
+option go_package = "denkproto-go/results";
+
+option csharp_namespace = "DENK.Proto.Results";
+
+enum MapDataType {
+	MAP_INT8    =  0;
+	MAP_INT16   =  1;
+	MAP_INT32   =  2;
+	MAP_INT64   =  3;
+	MAP_UINT8   =  4;
+	MAP_UINT16  =  5;
+	MAP_UINT32  =  6;
+	MAP_UINT64  =  7;
+	MAP_FLOAT8  =  8;
+	MAP_FLOAT16 =  9;
+	MAP_FLOAT32 = 10;
+	MAP_FLOAT64 = 11;
+}
+
+enum ModelType {
+	REGULAR         = 0;
+	AREA_DEFINITION = 1;
+}
+
+enum ModelOutputType {
+	TYPE_UNKNOWN                       = 0;
+	TYPE_CLASSIFICATION                = 1;
+	TYPE_SEGMENTATION                  = 2;
+	TYPE_INSTANCE_SEGMENTATION         = 3;
+	TYPE_OBJECT_DETECTION              = 4;
+	TYPE_ANOMALY_DETECTION             = 5;
+	TYPE_OPTICAL_CHARACTER_RECOGNITION = 6;
+}
+
+enum BarcodeType {
+	BT_UNDEFINED           =  0;
+	BT_AZTEC               =  1;
+	BT_CODABAR             =  2;
+	BT_CODE_32             =  3;
+	BT_CODE_39             =  4;
+	BT_CODE_93             =  5;
+	BT_CODE_128            =  6;
+	BT_DATABAR             =  7;
+	BT_DATABAR_EXPANDED    =  8;
+	BT_DATABAR_LIMITED     =  9;
+	BT_DATAMATRIX          = 10;
+	BT_EAN_8               = 11;
+	BT_EAN_13              = 12;
+	BT_EAN_13_WITH_ADDON_2 = 13;
+	BT_EAN_13_WITH_ADDON_5 = 14;
+	BT_GS1_DATAMATRIX      = 15;
+	BT_GS1_128             = 16;
+	BT_ISBT_128            = 17;
+	BT_ITF                 = 18;
+	BT_ITF_14              = 19;
+	BT_MAXICODE            = 20;
+	BT_MICRO_QR_CODE       = 21;
+	BT_MSI                 = 22;
+	BT_PDF417              = 23;
+	BT_QR_CODE             = 24;
+	BT_UPC_A               = 25;
+	BT_UPC_A_WITH_ADDON_2  = 26;
+	BT_UPC_A_WITH_ADDON_5  = 27;
+	BT_UPC_E               = 28;
+	BT_UPC_E_WITH_ADDON_2  = 29;
+	BT_UPC_E_WITH_ADDON_5  = 30;
+}
+
+message DefectAddress {
+	int32  dataset_index          = 1;
+	int32  model_id               = 2;
+	int32  feature_index          = 3;
+	double overlap_area           = 4;
+	double overlap_ratio          = 5;
+	double overlap_ratio_of_other = 6;
+	string feature_uid            = 7;
+}
+
+message RowRLC {
+	int32 offset_x = 1;
+	int32 offset_y = 2;
+	int32 length   = 3;
+}
+
+message OcrCharacter {
+	string character   = 1;
+	double probability = 2;
+	bool   ignored     = 3;
+}
+
+message OcrCharacterPosition {
+	repeated OcrCharacter ocr_character = 1;
+}
+
+message Point {
+	double x = 1;
+	double y = 2;
+}
+
+message MinimalBoundingBox {
+	double center_x = 1;
+	double center_y = 2;
+	double width    = 3;
+	double height   = 4;
+	double angle    = 5;
+}
+
+message FeatureField {
+	         string               label                      =  1;
+	         bool                 show                       =  2;
+	repeated int32                color                      =  3;
+	         int32                rect_x                     =  4;
+	         int32                rect_y                     =  5;
+	         int32                rect_w                     =  6;
+	         int32                rect_h                     =  7;
+	         double               probability                =  8;
+	         double               area                       =  9;
+	         double               length                     = 10;
+	         double               width                      = 11;
+	         double               mean_gray                  = 12;
+	         double               max_gray                   = 13;
+	         double               min_gray                   = 14;
+	repeated int32                in_area                    = 15;
+	repeated DefectAddress        overlaps_with              = 16;
+	         double               rect_x_mm                  = 17;
+	         double               rect_y_mm                  = 18;
+	         double               rect_w_mm                  = 19;
+	         double               rect_h_mm                  = 20;
+	repeated RowRLC               row_rlc                    = 21;
+	repeated OcrCharacterPosition ocr_character_position     = 22;
+	         MinimalBoundingBox   minimal_bounding_box       = 23;
+	repeated Point                minimal_bounding_box_point = 24;
+	         bool                 write_protected_label      = 25;
+	         BarcodeType          barcode_type               = 26;
+	         bytes                barcode_raw_bytes          = 27;
+}
+
+// requires complementary array of type "datatype"
+message MapField {
+	         string      label          = 1;
+	         bool        show           = 2;
+	repeated int32       color          = 3;
+	         MapDataType datatype       = 4;
+	         int32       image_w        = 5;
+	         int32       image_h        = 6;
+	         int32       image_c        = 7;
+	         int32       start_position = 8;
+	         int32       end_position   = 9;
+}
+
+enum ResultFieldType {
+	RFT_REGULAR       = 0;
+	RFT_MODEL_SUMMARY = 1;
+	RFT_DEBUG         = 2;
+}
+
+message ResultField {
+	         string          model_label             =  1;
+	         string          model_tag               =  2;
+	         int32           model_id                =  3; // deprecated
+	         double          classifier              =  4;
+	         double          evaluation_time_ms      =  5;
+	         double          post_processing_time_ms =  6;
+	repeated MapField        result_map              =  7;
+	repeated FeatureField    feature                 =  8;
+	         string          tenant                  =  9; // Used for communicating the tenant to the main program
+	         string          tenant_id               = 10; // Used for communicating the tenant-ID to the main program
+	         int32           onnx_version_major      = 11; // Used for communicating the network onnx version to the main program
+	         int32           onnx_version_minor      = 12; // Used for communicating the network onnx version to the main program
+	         string          feature_uid             = 13;
+	         ResultFieldType result_field_type       = 14;
+}
+
+message Summary {
+	int32  image_class           = 1;
+	string class_code            = 2;
+	string most_relevant_defect  = 3;
+	string relevant_defects_json = 4;
+	string feature_table_json    = 5;
+}
+
+message FeatureInfo {
+	string feature_uid  = 1;
+	string feature_name = 2;
+}
+
+message ModelInfo {
+	         string          model_uid          = 1;
+	         string          model_name         = 2;
+	repeated FeatureInfo     features           = 3;
+	         string          tenant             = 4;
+			 string          tenant_uid         = 5;
+	         int32           onnx_version_major = 6; // Used for communicating the network onnx version to the main program
+	         int32           onnx_version_minor = 7; // Used for communicating the network onnx version to the main program
+			 ModelType       model_type         = 8;
+			 ModelOutputType model_output_type  = 9;
+}
+
+message Results {
+	repeated ResultField output                =  1;
+	         int32       original_image_w      =  2;
+	         int32       original_image_h      =  3;
+	         int32       original_image_c      =  4;
+	         double      original_image_w_mm   =  5;
+	         double      original_image_h_mm   =  6;
+	         double      original_image_c_mm   =  7;
+	         double      mean_gray_active_area =  8;
+	         Summary     result_summary        =  9;
+	         double      min_gray_active_area  = 10;
+	         double      max_gray_active_area  = 11;
+	repeated ModelInfo   available_models      = 12; // Used for communicating the available models to the main program
+}
+
+
+// deprecated
+message ModelOptions {
+	bool   deactivated              =  1;
+	double minSegmentationThreshold =  2;
+	double minGrayValue             =  3;
+	double maxGrayValue             =  4;
+	double maxMeanGrayValue         =  5;
+	double minProbability           =  6;
+	double minLength                =  7;
+	double minWidth                 =  8;
+	double minHeight                =  9;
+	double minArea                  = 10;
+	double minImageClassifier       = 11;
+	double deepGrayLevel            = 12;
+	int32  priority                 = 13;
+	bool   onlyBoundingBoxes        = 14;
+}
+
+// deprecated
+message OptionContainer {
+	map<int32, ModelOptions> options =  1; // maps the model_id to the options
+	int32 divisor_w                  =  2;
+	int32 divisor_h                  =  3;
+	int32 batch_size                 =  4;
+	int32 network_img_prescaling_w   =  5;
+	int32 network_img_prescaling_h   =  6;
+	int32 network_img_prescaling_c   =  7;
+	int32 border_w                   =  8;
+	int32 border_h                   =  9;
+	int32 border_w_r                 = 10;
+	int32 border_h_b                 = 11;
+	int32 cells_w                    = 12;
+	int32 cells_h                    = 13;
+}
+
+enum DeviceType {
+	UNDEFINED = 0;
+	CPU       = 1;
+	GPU       = 2;
+}
+
+// CPUs will only have their type and id set
+message Device {
+	int32      device_id                     = 1;
+	DeviceType type                          = 2;
+	string     name                          = 3;
+	int64      memory_size                   = 4; // available GPU memory in bytes
+	bool       integrated                    = 5; // whether the GPU is integrated
+	string     cuda_uuid                     = 6;
+	int32      cuda_compute_capability_major = 7;
+	int32      cuda_compute_capability_minor = 8;
+}
+
+message DeviceInformation {
+	repeated Device device = 1;
+}

@@ -1,0 +1,190 @@
+// Definition of Model File Structure
+// Version 2.0
+
+syntax = "proto3";
+
+package modelfile.v2;
+
+option go_package = "denkproto-go/modelfile/v2";
+
+option csharp_namespace = "DENK.Proto.Modelfile.V2";
+
+message ModelFile {
+	message Version {
+		uint32 major = 1;
+		uint32 minor = 2;
+		uint32 patch = 3;
+	}
+
+	message Content {
+		enum CompressionMethod {
+			CM_NONE = 0;
+		}
+		
+		enum EncryptionMethod {
+			EM_NONE    = 0;
+			EM_AES_GCM = 1;
+		}
+
+		message KeySlot {
+			bytes            wrapped_key     = 1;
+			EncryptionMethod wrapping_method = 2;
+		}
+
+		bytes                byte_content       = 1;
+		bytes                hash_sha256        = 2; // hash of the uncompressed and unencrypted content
+		CompressionMethod    compression_method = 3;
+		EncryptionMethod     encryption_method  = 4;
+		map<string, KeySlot> key_slots          = 5; // maps the key identifier string to the wrapped key
+	}
+
+	message ClassLabel {
+		string class_label_id = 1;
+		string name           = 2;
+		string short_name     = 3;
+		string color          = 4; // hex value in the form #RRGGBB, regex: ^#(?:[0-9a-fA-F]{2}){3}$
+	}
+
+	message ImageSize {
+		uint32 width    = 1;
+		uint32 height   = 2;
+		uint32 channels = 3;
+	}
+
+	message RegionFromEdge {
+		double left   = 1;
+		double right  = 2;
+		double top    = 3;
+		double bottom = 4;
+	}
+
+	message Input {
+		message ImageInputFormat {
+			message ExactImageSizeRequirement {
+				ImageSize image_size = 1;
+			}
+	
+			message DivisibleImageSizeRequirement {
+				ImageSize image_size_divisors  = 1; // contains the values that the respective image dimensions must be divisible by
+				ImageSize minimum_image_size   = 2; // the image must not be smaller than this value
+				ImageSize suggested_image_size = 3; // contains the image size that the image has been trained with
+			}
+
+			oneof image_size_requirements {
+				ExactImageSizeRequirement     exact_image_size     = 1;
+				DivisibleImageSizeRequirement divisible_image_size = 2;
+			}
+			RegionFromEdge region_of_interest                      = 3;
+		}
+
+		oneof FormatInformation {
+			ImageInputFormat image_format = 1;
+		}
+	}
+
+	message Output {
+		// reserved for future use
+		message ImageClassifiersOutputFormat {}
+
+		message SegmentationMapsOutputFormat {
+			ImageSize image_size = 1; // a dimension that is set to 0 will be treated as "same as in input image"
+		}
+
+		message BoundingBoxesOutputFormat {
+			uint64 number_of_boxes          = 1;
+			uint64 stride                   = 2;
+			uint64 x1_offset                = 3;
+			uint64 y1_offset                = 4;
+			uint64 x2_offset                = 5;
+			uint64 y2_offset                = 6;
+			uint64 confidence_offset        = 7;
+			uint64 class_label_index_offset = 8;
+		}
+
+		message BoundingBoxSegmentationsOutputFormat {
+			ImageSize image_size               = 1; // a dimension that is set to 0 will be treated as "same as in input image"
+			bool      relative_to_bounding_box = 2; // if false, the segmentation map will be treated as relative to the whole image
+		}
+
+		message OcrOutputFormat {
+			message Character {
+				enum CharacterType {
+					CT_REGULAR       = 0;
+					CT_START_OF_TEXT = 1;
+					CT_END_OF_TEXT   = 2;
+					CT_PADDING       = 3;
+				}
+
+				bytes         utf8_representation = 1;
+				CharacterType character_type      = 2;
+				bool          ignore              = 3;
+			}
+
+					 uint64    number_of_characters = 1; // 0 is interpreted as no character limit
+			repeated Character characters           = 2;
+		}
+
+		oneof FormatInformation {
+			ImageClassifiersOutputFormat         image_classifiers_format          = 1;
+			SegmentationMapsOutputFormat         segmentation_maps_format          = 2;
+			BoundingBoxesOutputFormat            bounding_boxes_format             = 3;
+			BoundingBoxSegmentationsOutputFormat bounding_box_segmentations_format = 4;
+			OcrOutputFormat                      ocr_format                        = 5;
+		}
+	}
+
+	message FileInfo {
+		enum FileType {
+			FT_ONNX_MODEL   = 0;
+			FT_ZXING_KEY    = 1;
+			FT_VIZIOTIX_KEY = 2;
+		}
+
+		enum NetworkType {
+			NT_UNKNOWN                       = 0;
+			NT_CLASSIFICATION                = 1;
+			NT_SEGMENTATION                  = 2;
+			NT_INSTANCE_SEGMENTATION         = 3;
+			NT_OBJECT_DETECTION              = 4;
+			NT_ANOMALY_DETECTION             = 5;
+			NT_OPTICAL_CHARACTER_RECOGNITION = 6;
+		}
+
+		enum Precision {
+			P_UNDEFINED       =  0;
+			P_FP8             =  1;
+			P_FP16            =  2;
+			P_FP32            =  3;
+			P_FP64            =  4;
+			P_INT8            =  5;
+			P_INT16           =  6;
+			P_INT32           =  7;
+			P_INT64           =  8;
+			P_UINT8           =  9;
+			P_UINT16          = 10;
+			P_UINT32          = 11;
+			P_UINT64          = 12;
+			P_MIXED_PRECISION = 13;
+		}
+
+		FileType    file_type             =  1;
+		string      network_name          =  2;
+		string      network_id            =  3;
+		string      network_experiment_id =  4;
+		string      network_snapshot_id   =  5;
+		NetworkType network_type          =  6;
+		string      network_flavor        =  7;
+		Version     network_version       =  8;
+		Version     runtime_version       =  9;
+		Precision   precision             = 10;
+	}
+
+			 Version    protocol_version = 1;
+			 int64      created_at       = 2;
+			 FileInfo   file_info        = 3;
+			 Content    content          = 4;
+	repeated ClassLabel class_labels     = 5;
+	repeated Input      inputs           = 6;
+	repeated Output     outputs          = 7;
+			 bytes int8_calibration_data = 8; // encoded flatbuffer bytes
+}

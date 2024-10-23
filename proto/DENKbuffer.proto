@@ -1,0 +1,241 @@
+syntax = "proto3";
+
+package denkproto;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "denkproto-go/denkbuffer";
+
+option csharp_namespace = "DENK.Proto";
+
+enum ImageTypes {
+    // Image.data contains raw uint8 values. Image can be reconstructed by using Image.width, Image.height, Image.channels
+    Raw = 0;
+    // Image.data contains JPEG encoded image
+    JPEG = 1;
+    // Image.data contains PNG encoded image
+    PNG = 2;
+}
+
+message Image {
+    // Image output id
+    string id = 1;
+    // Encoded Image
+    bytes data = 2;
+    // H height
+    int32 height = 3;
+    // W width
+    int32 width = 4;
+    // C channels [1-3]
+    int32 channels = 5;
+    // filename (optional)
+    string filename = 6;
+    // Image type
+    ImageTypes imageType = 7;
+}
+
+message FloatMapChannel {
+    // uuid of the associated class
+    string class_label_id = 1;
+    // data. H x W float
+    repeated float data = 2;
+}
+
+// AnomalyDetection: 1xHxW
+// Segmentation: CxHxW
+message FloatMap {
+    // each channel contains H x W images, 0-1 float values.
+    // Should be color-mapped to for visualization.
+    repeated FloatMapChannel channels = 1;
+    // H height
+    int32 height = 2;
+    // W width
+    int32 width = 3;
+}
+
+message ClassificationPrediction {
+    string class_label_id = 1; // uuid of the associated class
+    double score = 2; // score [0, 1]
+}
+
+message BoundingBox {
+    // top left x [0, 1]
+    double x1 = 1;
+    // bottom right x [0, 1]
+    double x2 = 2;
+    // top left y [0, 1]
+    double y1 = 3;
+    // bottom right y [0, 1]
+    double y2 = 4;
+}
+
+message ObjectDetectionPrediction {
+    // uuid of the associated class
+    string class_label_id = 1;
+    // score of the detected object
+    double score = 2;
+    // bounding box
+    BoundingBox box = 3;
+}
+
+message Point2d {
+    // [0, 1]
+    double x = 1;
+    // [0, 1]
+    double y = 2;
+}
+
+message Contour {
+    repeated Point2d points = 1;
+}
+
+message Polygon {
+    // outer contour
+    Contour outer = 1;
+    // holes
+    repeated Contour holes = 2;
+}
+
+message InstanceSegmentationPrediction {
+    // uuid of the associated class
+    string class_label_id = 1;
+    // score of the detected object
+    double score = 2;
+    // bounding box
+    BoundingBox box = 3;
+    // can contain one ore more polygons
+    repeated Polygon polygons = 4;
+    // optional: original mask
+    FloatMap mask = 5;
+}
+
+message OCRPrediction {
+    // uuid of the associated class
+    string class_label_id = 1;
+    // Contains boundaries. Can be Rectangle or Polygon. If polygon, the polygon might contain zero or more holes.
+    Polygon polygon = 2;
+    // Score of this prediction
+    double score = 3;
+    // detected text
+    bytes text = 4;
+    // individual scores for every character
+    repeated double char_scores = 5;
+}
+
+message CodePrediction {
+    // associated class
+    string class_label_id = 1;
+    // Contains boundaries. Can be Rectangle or Polygon. If polygon, the polygon might contain zero or more holes.
+    Polygon polygon = 2;
+    // detected code type
+    string code_type = 3;
+    // detected text
+    bytes text = 4;
+}
+
+message ComputedPropertyValue {
+    oneof value {
+        int64 _int64 = 1;
+        double _double = 2;
+        string _string = 3;
+    }
+}
+
+enum ComputedPropertySubjects {
+    COMPUTED_PROPERTY_SUBJECT_MEAN_GRAY_VALUE = 0;
+}
+
+message ComputedProperty {
+    ComputedPropertySubjects subject = 1;
+    ComputedPropertyValue value = 2;
+}
+
+
+message Prediction {
+    // The object itself
+    oneof prediction {
+        ClassificationPrediction classification = 1;
+        ObjectDetectionPrediction object_detection = 2;
+        InstanceSegmentationPrediction instance_segmentation = 3;
+        OCRPrediction ocr = 4;
+        CodePrediction code = 5;
+        FloatMap segmentation = 6;
+        FloatMap anomaly_detection = 7;
+    }
+    // these properties will be computed on the fly
+    // example: meanGrayValue.
+    // It will be only computed if there is a filter- or decision-rule that evaluates meanGrayValue
+    // Once computed, values can be cached here and can fetched by other rules that also evaluate the same property.
+    // Reason: We don't want to waste compute time for values that we don't need.
+    repeated ComputedProperty computed_properties = 20;
+}
+
+message Predictions {
+    repeated Prediction predictions = 1;
+}
+
+message Result {
+    int32 grade = 1; // piority of the result: when multiple results are possible (according to rules) the result with highest priority will be selected
+    string name = 2; // name of the result
+    string color = 3; // color of this result. Can be any css color string.
+}
+
+message ClassLabel {
+    // uuid of the class
+    string id = 1;
+    // uuid of the network
+    string network_id = 2;
+    // index of the class (as it is present in network)
+    int32 index = 3;
+    // name o the class
+    string name = 4;
+    // all css color formats allowed
+    string color = 5;
+}
+
+
+message DENKbuffer {
+    // uuid of the buffer
+    string id = 1;
+    // project to which the denkbuffer belongs
+    string project_id = 2;
+    // uuid of the user that was logged-in when the buffer was created
+    string created_by_user_id = 3;
+    // uuid of the group this buffer belongs to
+    string owned_by_group_id = 4;
+    // the time when this buffer was created
+    // if triggers are present, this should be equal to latest trigger timestamp
+    google.protobuf.Timestamp created_at = 5;
+    // pipeline config that was used to produce this buffer
+    // can be used to reconstruct full pipeline
+    // yaml format
+    string pipeline_config = 6;
+    // output_port_id -> port_name
+    // contains readable names for the output ports of the pipeline.
+    map<string, string> port_names = 7;
+    // class_label_id -> class_label.
+    // Is part of every buffer object and pre-filled by pipeline service.
+    // Can be used to draw correct colors for detected objects.
+    map<string, ClassLabel> class_labels = 11;
+    // trigger timestamps
+    // latest timestamp should be equal to buffer.created_at
+    // output_port_id -> timestamp
+    map<string, google.protobuf.Timestamp> triggers = 21;
+    // Pipeline images
+    // output_port_id -> image
+    map<string, Image> images = 31;
+    // Contains predictions made by nodes.
+    // Can be used in filter and decision node.
+    // Can be used in clients to draw found objects.
+    // output_port_id -> Predictions (each output can produce multiple Predictions. E.g. ObjectDetection can find 2 or more bounding boxes)
+    map<string, Predictions> predictions = 41;
+    // Contains over all results.
+    // (Possible future use-case: Multiple results possible when multiple decision nodes are used.)
+    // output_port_id -> result
+    map<string, Result> results = 51;
+    // contains tags that can be used to identify this denkbuffer
+    repeated string tags = 101;
+}
+
+// For using protobuf-lite
+option optimize_for = LITE_RUNTIME;

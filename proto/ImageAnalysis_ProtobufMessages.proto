@@ -1,0 +1,431 @@
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// !!!!!!!!!!! change version number in pb_ProtocolVersionDetection when protocol changed !!!!!!!!!!!!!!!!!!!!!
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// history //
+
+// v1.100   (Volker Gutewort)
+// initial test version
+
+// v1.102   (Volker Gutewort)
+// all tabs converted to spaces
+// history added
+// changed name and numeric type of timestamp values (uint64 --> int64)
+
+// v1.103   (Volker Gutewort)
+// 'failure' changed to 'feature'
+
+// v1.105   (Volker Gutewort)
+// ATTENTION: changes are incompatible to previous protocol versions !!!!
+// new message added "GETPRESETS"    (new message numbering)
+// message GETCONFIGINFO changed to GETCONFIGPARAMS
+// new message added SETCONFIGPARAMS 
+// new message parameters for pb_Body_SetConfig
+// change of nomenclature of message names of responses (use underscore in front of _Response) 
+
+// v1.107   (Volker Gutewort)
+// ATTENTION: changes are incompatible to previous protocol versions !!!!
+// added suffixes to most of the enum types (otherwise it's possible to get in trouble with some internal names of C++ like 'IN', 'OUT', 'ERROR', ...)
+// added classification in IMAGERESULT message
+
+// v1.109   (Volker Gutewort)
+// added new optional value "pb_Body_ImageResult.pb_ImageClassification.image_quality_score
+// added new optional value "pb_Body_ImageResult.pb_ImageClassification.image_ok_score
+// changed default value of pb_Body_SetConfig.pb_ConfigParam.val_double from 0 to -1e99
+
+// v1.111   (Volker Gutewort)
+// ATTENTION: changes are incompatible to previous protocol versions !!!!
+// defined a sub message pb_ImageData to transport images (can be used in different messages)
+// pb_Body_AnalyzeImage uses pb_ImageData instead an own bytes array (incompatible to previous versions)
+// added options to return plain and overlayed images in ImageResult
+
+// v1.113   (Volker Gutewort)
+// added new optional feature parameters  (area_edge, length_edge, avggrayvalue, maxgrayvalue, mingrayvalue)
+// added new optional image classification parameters  (image_avggrayvalue, image_maxgrayvalue, image_mingrayvalue)
+
+// v1.115   (Volker Gutewort)
+// added option to send additional data (e.g. Isc, Voc, ...) in AnalyzeImage message (pb_AdditionalData)
+
+// v1.117   (Volker Gutewort)
+// added multiple images support in AnalyzeImage and ImageResult message
+
+// v1.119   (Volker Gutewort)
+// added optional unique ID per feature and possibility to reference to related features (pb_FeatureInfo)
+
+//*******************************************************************************************
+// pb_MessageHeader
+//*******************************************************************************************
+
+syntax = "proto2";
+
+package image_analysis;
+
+option go_package = "denkproto-go/image-analysis";
+
+option csharp_namespace = "DENK.Proto.IA";
+
+message pb_ProtocolVersionDetection{
+    optional int32       protocol_version_major    = 1 [default = 1];      // major version of protocol
+    optional int32       protocol_version_minor    = 2 [default = 119];    // minor version of protocol - 3 digits starting from 100 (even minor version (0,2,4,6,8, ...) -> version in development;  odd version --> release version)
+}
+
+message pb_MessageHeader{
+
+    enum MessageType {
+        UNDEFINED              = 0;
+        GETSTATUS              = 1;      // GUI -> IA             // send status information (available config sets, image analyses in process, ...)
+        GETVERSION             = 2;      // GUI -> IA             // send name and version of the program
+        INIT                   = 3;      // GUI -> IA             // initialize (remove all configurations and image analyses in process)
+        GETPRESETS             = 4;      // GUI -> IA             // get a list of available configuration presets from IA
+        GETPRESETINFO          = 5;      // GUI -> IA             // get detailed information of a preset from IA
+        SETCONFIG              = 6;      // GUI -> IA             // set the parameter of a new or currently available configuration
+        REMOVECONFIG           = 7;      // GUI -> IA             // removes config set from available configuration list
+        GETCONFIGPARAMS        = 8;      // GUI -> IA             // asks for a list of parameter values
+        SETCONFIGPARAMS        = 9;      // GUI -> IA             // send new config parameters to IA
+        ANALYZEIMAGE           = 10;     // GUI -> IA             // send image for analyzing
+        IMAGERESULT            = 11;     // IA -> GUI             // send back analysis result to GUI
+        INFOMESSAGE            = 12;     // IA -> GUI             // send a notification (will be shown in log)
+        GETCONFIGFILE          = 1000;   // GUI -> IA             // Get information on the currently used config file and other available config files
+        SETCONFIGFILE          = 1001;   // GUI -> IA             // Selects a new config file by name
+        MODIFYCONFIGFILE       = 1002;   // GUI -> IA             // Overwrites the current config file with new content
+        GETSTATISTICS          = 1003;   // GUI -> IA             // Get current statistics as CSV string
+        OPENDIRECTORYINBRWOSER = 1004;   // GUI -> IA             // Get current statistics as CSV string
+    }
+
+    required MessageType message_type              = 1;                    // type of this message
+    required bool        response                  = 2;                    // true/false  --> is this message a response or a message
+    required uint32      message_counter           = 3;                    // will be increased by one before every message is sent
+    required uint32      size_message_body         = 4;                    // size of the message body (could be used to jump over unknown messages)
+    optional int32       protocol_version_major    = 5;                    // major version of protocol
+    optional int32       protocol_version_minor    = 6;                    // minor version of protocol - 3gigits starting from 100 (even minor version (0,2,4,6,8, ...) -> version in development;  odd version --> release version)
+    required int64       timestamp_utc_ms          = 7;                    // unix like datetime value (UTC) in milliseconds since 1970/1/1
+    required int32       error_code                = 8;                    // 0 means no error   (negative and positive values are allowed)
+    optional string      info_text                 = 9;
+    repeated int32       int_values                = 10;                   // optional integer values (could be used for debug purposes)
+    repeated double      double_values             = 11;                   // optional double values (could be used for debug purposes)
+    repeated string      string_values             = 12;                   // optional string values (could be used for debug purposes)
+}
+//*******************************************************************************************
+
+
+message pb_Body_Init{
+    required string init_hash_code                 = 1;             // IA have to sent this string back to GUI in pb_Body_GetStatusResponse
+}
+
+
+message pb_Body_GetStatus_Response{
+    message pb_ImageInProcess{
+        required string serial_number_image        = 1;
+        required string configuration_set_name     = 2;
+    }
+    required string init_hash_code                 = 1;             // was set in message INIT
+    required int64 init_timestamp_utc_ms           = 2;             // timestamp when program was initialized - unix like datetime value (UTC) in milliseconds since 1970/1/1
+    repeated string configuration_sets             = 3;             // array of available configuration sets
+    repeated pb_ImageInProcess images_in_process   = 4;             // list of images currently in process
+}
+
+
+message pb_Body_GetVersion_Response{
+    required string program_name                   = 1;             // name of the program
+    required string program_version                = 2;             // version: major.minor.release
+}
+
+
+message pb_Body_GetPresets_Response{
+    repeated string preset_name_list               = 1;            // list of available presets
+}
+
+
+message pb_Body_GetPresetInfo{
+    required string preset_name                    = 1;            // name of the preset of which detailed information should be returned
+}
+
+message pb_Body_GetPresetInfo_Response{
+    message pb_AddInfoItem{
+        required string name                       = 1;            // name of additional info item
+        required string value                      = 2;            // string value of additional info item
+    }
+
+    enum DirectionEnum{     // communication direction
+        UNDEFINED_DR             = 0;
+        IN_DR                    = 1;       // parameter can be set by the GUI (but can't be read)
+        OUT_DR                   = 2;       // parameter can be read by the GUI (but can't be set)
+        IN_OUT_DR                = 3;       // parameter can be read and set by the GUI
+    }
+    message pb_ParamInfoItem{
+        required string           param_name       = 1;                            // name of the parameters
+        required DataTypeEnum     datatype         = 2 [default = UNDEFINED_DT];   // data type of this parameter
+        required DirectionEnum    direction        = 3 [default = UNDEFINED_DR];   // communication direction of this parameter (can be in, out or in/out)
+    }
+    message pb_PresetItem{
+        required string           preset_name      = 1;            // unique preset name
+        optional string           date             = 2;            // optional date string of this preset
+        optional string           version          = 3;            // optional version string of this preset
+        optional string           comment          = 4;            // optional comment of this preset
+        repeated string           feature_types    = 5;            // list of supported feature types (e.g. Cracks, Finger_Interuptions, etc.)
+        repeated pb_AddInfoItem   additional_infos = 6;            // list of additional information of this preset
+        repeated pb_ParamInfoItem param_list       = 7;            // list of available parameters of this preset           
+    }
+    optional pb_PresetItem      preset_info        = 1;            // information of the requested preset (or null if not available)
+}
+
+
+enum DataTypeEnum{      // possible type of parameters
+    UNDEFINED_DT             = 0;
+    STRING_DT                = 1;         // text
+    DOUBLE_DT                = 2;         // numeric
+    JSON_DT                  = 3;         // special string type with an internal JSON format
+}
+
+// type will be used in SetConfig, GetConfigParams_Response and SetConfigParams
+message pb_ConfigParam{
+        required string                 param_name             = 1;                            // name of this parameter
+        required DataTypeEnum           datatype               = 2 [default = UNDEFINED_DT];   // type of this parameter (string, double, json)
+        optional string                 val_string             = 3;                            // value of this parameter if it's a string value
+        optional string                 val_json               = 4;                            // value of this parameter if it's a JSON value
+        optional double                 val_double             = 5 [default = -1e99];          // value of this parameter if it's a double value
+}
+
+message pb_Body_SetConfig{
+    message pb_CellInfo{
+        enum pb_BusbarOrientationEnum {
+            UNDEFINED_BO               = 0;
+            HORIZONTAL_BO              = 1;
+            VERTICAL_BO                = 2;
+        }
+        enum pb_CrystalTypeEnum {
+            UNDEFINED_CT               = 0;
+            MONO_CT                    = 1;
+            POLY_CT                    = 2;
+        }       
+        optional int32                     busbar_count           = 1  [default = -1];              // number of busbars
+        optional pb_BusbarOrientationEnum  busbar_orientation     = 2  [default = UNDEFINED_BO];
+        optional pb_CrystalTypeEnum        crystal_type           = 3  [default = UNDEFINED_CT];
+    }
+    required string          configset_name      = 1;       // name to identify a configuration set (can be freely given by GUI)
+    optional pb_CellInfo     cell_info           = 2;       // information for used cell type
+    optional string          preset_name         = 3;       // name of the preset which should be used (use a default one when null - or return an error when there is no default available)
+    repeated pb_ConfigParam  config_params       = 4;       // list of configuration parameters used in this configuration set  (definition of these parameters are not part of this protocol)
+}
+
+
+message pb_Body_RemoveConfig{
+    required string configset_name                  = 1;        // remove given configuration set or all configuration sets when configset_name=="ALLCONFIGS"
+}
+
+
+message pb_Body_GetConfigParams{
+    required string configset_name                  = 1;        // name of configuration set
+    repeated string param_name_list                 = 2;        // list of parameters which should be returned
+}
+
+
+message pb_Body_GetConfigParams_Response{
+    required string          configset_name         = 1;        // name of configuration set
+    repeated pb_ConfigParam  config_params          = 2;        // the values of the requested parameters
+}
+
+
+message pb_Body_SetConfigParams{
+    required string          configset_name         = 1;        // name of configuration set
+    repeated pb_ConfigParam  config_params          = 2;        // the values of the parameters to set
+}
+
+
+message pb_ImageData{
+    enum pb_FileFormatEnum {
+        UNDEFINED_FF         = 0;
+        PNG_FF               = 1;
+        JPG_FF               = 2;
+        RAW_FF               = 3;
+        BYTES                = 100;
+        TIF_FF               = 101;
+    }
+    required pb_FileFormatEnum   image_file_format     = 1;                     // file format of image_data
+    optional bytes               image_data            = 2;                     // byte array of the image data
+    optional int32               width                 = 3 [default = -1];      // width of image (only needed when raw format used)
+    optional int32               height                = 4 [default = -1];      // height of image (only needed when raw format used)
+    optional int32               bitdepth              = 5 [default = -1];      // bit depth of image - 8 or 16 bit for bw images, 24bit for RGB color images (only needed when raw format used)
+}
+
+message pb_MultiImages{
+        required string          name            = 1;                           // name of the image in lower case
+        optional pb_ImageData    image           = 2;                           // image data
+    }
+
+
+message pb_AdditionalData{
+    message pb_NumericValue{
+        required string          name            = 1;                           // name of the transfered parameter (e.g. Voc, Isc, ...)
+        required string          unit            = 2;                           // unit of this parameter
+        required double          value           = 3;                           // value of this parameter   (-1e99 means NaN)
+    }
+	message pb_StringValue{
+        required string          name            = 1;                           // name of the transfered parameter in lower case (e.g. celltypename, ...)
+        required string          value           = 2;                           // value of this parameter
+    }
+    repeated  pb_NumericValue    numeric_values  = 1;
+    repeated  pb_StringValue     string_values   = 2;
+}
+
+
+
+message pb_Body_AnalyzeImage{
+    message pb_DENK_UploadSettings {
+        optional string                   upload_path        = 1; // upload path with full filename; the extension determines the filetype
+        optional bool                     upload_annotations = 2; // controls whether annotations will be uploaded together with the image
+        optional int32                    compression_option = 3 [default = -1]; // default compression parameters will be used if left at "-1", which is recommended in most cases; the exact meaning of this value depends on the chosen file format
+    }
+
+    required string                 serial_number_image   = 1;     // serial number of the measurement (GUID)
+    required string                 configset_name        = 2;     // name of configuration set which should be used for image analyzing
+    optional pb_ImageData           image                 = 3;     // image which have to be analyzed (not needed when 'multiple_images' are used)
+    optional pb_AdditionalData      additional_data       = 4;     // additional information about this cell/measurement, e.g. Isc, Voc etc. (could be enabled/disabled in GUI)
+    repeated pb_MultiImages         multi_images          = 5;     // use this instead of 'image' to transfer multiple images for combined analysis possibilities
+    optional pb_DENK_UploadSettings upload_options        = 100;
+}
+
+
+
+message pb_Body_ImageResult{
+    message pb_Rect{
+        optional double x_pos     = 1;      // upper left corner
+        optional double y_pos     = 2;
+        optional double width     = 3;
+        optional double height    = 4;
+    }
+
+    message pb_DENK_Point {
+        optional double x = 1;
+        optional double y = 2;
+    }
+
+    message pb_DENK_MinimalBoundingBox {
+        optional double center_x = 1;
+        optional double center_y = 2;
+        optional double width    = 3;
+        optional double height   = 4;
+        optional double angle    = 5;
+    }
+
+    message pb_DENK_OcrCharacter{
+        optional string character   = 1;
+        optional double probability = 2;
+    }
+
+    message pb_DENK_OcrCharacterPosition{
+        repeated pb_DENK_OcrCharacter ocr_character = 1;
+    }
+
+    message pb_Feature{
+        message pb_FeatureInfo{
+            optional pb_Rect outline_rect_px          = 1;                        // outline rectangle in pixels
+            optional double  probability              = 2 [default = -1e99];      // probability for this feature (independent from other features, 1.0 means 100%) (optional value)
+            optional double  length                   = 3 [default = -1e99];      // length  (optional value)
+            optional double  area                     = 4 [default = -1e99];      // area  (optional value)
+            optional double  angle                    = 5 [default = -1e99];      // angle  (optional value)
+            optional double  number                   = 6 [default = -1e99];      // number - can be freely used (optional value)
+            optional double  average                  = 7 [default = -1e99];      // average - can be freely used (optional value)
+            optional double  maximum                  = 8 [default = -1e99];      // maximum - can be freely used (optional value)
+            optional double  minimum                  = 9 [default = -1e99];      // minimum - can be freely used (optional value)
+            optional double  area_edge                = 10 [default = -1e99];     // area_edge - optional value (area inside the edge part of the cell)
+            optional double  area_length              = 11 [default = -1e99];     // area_length - optional value (length inside the edge part of the cell)
+            optional double  avggrayvalue             = 13 [default = -1e99];     // avggrayvalue - optional value (average gray value)
+            optional double  maxgrayvalue             = 14 [default = -1e99];     // maxgrayvalue - optional value (maximum gray value)
+            optional double  mingrayvalue             = 15 [default = -1e99];     // mingrayvalue - optional value (minimum gray value)
+            optional int32   id                       = 16 [default = -1];        // optional unique ID - can be used for referencing between features via related_ids (scope: message)
+            repeated int32   related_ids              = 17;                       // a derived feature can references its base-features by id
+            optional double  width                    = 100 [default = -1e99];    // width (optional value)
+            optional pb_Rect outline_rect_mm          = 101;                      // outline rectangle in mm
+            optional string  uid                      = 102;                      // optional UID, replaced use of ID above
+            repeated string  related_uids             = 103;
+            optional pb_DENK_MinimalBoundingBox   minimal_bounding_box       = 104;
+            repeated pb_DENK_Point                minimal_bounding_box_point = 105;
+            optional string                       ocr_text                   = 106;
+            repeated pb_DENK_OcrCharacterPosition ocr_character_position     = 107;
+        }
+        required string           feature_type_name   = 1;      // name of the feature type
+        repeated pb_FeatureInfo   feature_infos       = 2;      // one or more features of this feature type
+        repeated string           multi_image_names   = 3;      // if 'multi_images' in AnalyzeImage were used the feature can be associated to one or more images; if not used it's assumed corresponding to all images
+        repeated string           section             = 100;      // one or more areas that the defect is found in
+        optional bool             filtered_out        = 101;      // whether the defect was filtered out by the filtering criteria
+        optional double           classifier          = 102;      // image classifier or anomaly score, depending on network type
+    }
+    
+    message pb_ImageClassification{
+        enum pb_ImageQualityEnum {
+            UNDEFINED_QUALITY      = 0;
+            NO_ISSUE_QUALITY       = 1;             // all fine with this image
+            MINOR_ISSUE_QUALITY    = 2;             // there was an minor problem found
+            MAJOR_ISSUE_QUALITY    = 3;             // there was an major problem found
+        }
+        optional string               image_class_name     = 1;      // optional name of this class
+        optional pb_ImageQualityEnum  image_quality_class  = 2;      // optional rough information about final image quality
+        optional string               image_quality_code   = 3;      // IA can use this to transfer an internal reason/code to GUI for the current classification
+        optional double               image_quality_score  = 4 [default = -1e99];    // IA could set a score between 1 and 0 (1 indicates the maximum certainty that the image has this quality)
+        optional double               image_ok_score       = 5 [default = -1e99];    // IA could set a score between 1 and 0 (1 indicates the maximum certainty that the image is OK)
+        optional double               image_avggrayvalue   = 6 [default = -1e99];     // optional value (average gray value of whole image)
+        optional double               image_maxgrayvalue   = 7 [default = -1e99];     // optional value (maximum gray value of whole image)
+        optional double               image_mingrayvalue   = 8 [default = -1e99];     // optional value (minimum gray value of whole image)
+    }
+    
+    required string                     serial_number_image     = 1;    // serial number of the measurement (GUID)
+    required string                     configset_name          = 2;    // name of config set which was used for image analysis
+    repeated pb_Feature                 features                = 3;    // array of found feature types
+    optional pb_ImageClassification     image_classification    = 4;    // optional final classification of this image 
+    optional pb_ImageData               image_plain             = 5;    // option to return the plain image (e.g. when the image transfered in AnalyzeImage was changed)
+    optional pb_ImageData               image_overlaid          = 6;    // option to return the image overlaid with the found defects
+    repeated pb_MultiImages             multi_images_plain      = 7;    // option to return the plain images for every transfered image in 'multi_images' from  AnalyzeImage
+    repeated pb_MultiImages             multi_images_overlaid   = 8;    // option to return the image overlaid with the found defects for every transfered image in 'multi_images' from  AnalyzeImage
+}
+
+
+
+message pb_Body_InfoMessage{
+    enum pb_InfoTypeEnum{
+        UNDEFINED_IT         = 0;
+        DEBUG_IT             = 1;
+        INFO_IT              = 2;
+        WARNING_IT           = 3;
+        ERROR_IT             = 4;
+    }
+    required pb_InfoTypeEnum    info_type        = 1;
+    required int32              numeric_code     = 2;
+    required string             info_text        = 3;
+}
+
+
+
+message pb_Body_GetConfigFile_Response{
+    required string             config_file_name       = 1;
+    required string             config_content_json    = 2;
+    repeated string             available_config_files = 3;
+    required string             current_default_file   = 4;
+}
+
+
+
+message pb_Body_SetConfigFile{
+    required string             new_config_file_name   = 1;
+    required bool               set_as_default         = 2;
+}
+
+
+
+message pb_Body_ModifyConfigFile{
+    required string             config_file_name       = 1; // name of the config file; if the file doesn't exist it will be created; if empty, the currently loaded config will be modified
+    required string             config_content_json    = 2;
+}
+
+
+
+message pb_Body_GetStatistics_Response{
+    required string             statistics_csv         = 1;
+}
+
+
+
+message pb_Body_OpenDirectoryInBrowser{
+    required string             path                   = 1;
+}
