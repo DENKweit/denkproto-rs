@@ -9,6 +9,6 @@ fn main() {
         .input("./proto/DENKbuffer.proto")
         .input("./proto/modelfile-v2.proto")
         // Specify output directory relative to Cargo output directory.
-        .out_dir("src/gen")
+        .cargo_out_dir("protos")
         .run_from_script();
 }
