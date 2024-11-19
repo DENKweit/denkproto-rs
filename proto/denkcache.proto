@@ -1,0 +1,49 @@
+syntax = "proto3";
+package denkcache;
+
+message ObjectExistsRequest {
+    string container_name = 1;
+    string blob_name = 2;
+}
+
+message ObjectExistsResponse {
+    bool exists = 1;
+}
+
+message GetObjectRequest {
+    string container_name = 1;
+    string blob_name = 2;
+}
+
+message GetObjectResponse {
+    bytes object = 1;
+}
+
+message GetCachedObjectRequest {
+    string container_name = 1;
+    string blob_name = 2;
+}
+
+message GetCachedObjectResponse {
+    optional bytes object = 1;
+}
+
+message HasObjectCachedRequest {
+    string container_name = 1;
+    string blob_name = 2;
+}
+
+message HasObjectCachedResponse {
+    bool exists = 1;
+}
+
+message PingPongRequest {}
+message PingPongResponse {}
+
+service DENKcache {
+    rpc PingPong(PingPongRequest) returns (PingPongResponse);
+    rpc HasObjectCached(HasObjectCachedRequest) returns (HasObjectCachedResponse);
+    rpc ObjectExists (ObjectExistsRequest) returns (ObjectExistsResponse);
+    rpc GetObject (GetObjectRequest) returns (GetObjectResponse);
+    rpc GetCachedObject (GetCachedObjectRequest) returns (GetCachedObjectResponse);
+}

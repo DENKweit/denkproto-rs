@@ -179,12 +179,12 @@ message ModelFile {
 		Precision   precision             = 10;
 	}
 
-			 Version    protocol_version = 1;
-			 int64      created_at       = 2;
-			 FileInfo   file_info        = 3;
-			 Content    content          = 4;
-	repeated ClassLabel class_labels     = 5;
-	repeated Input      inputs           = 6;
-	repeated Output     outputs          = 7;
-			 bytes int8_calibration_data = 8; // encoded flatbuffer bytes
+			 Version              protocol_version   = 1;
+			 int64                created_at         = 2;
+			 FileInfo             file_info          = 3;
+			 Content              content            = 4;
+	repeated ClassLabel           class_labels       = 5;
+	repeated Input                inputs             = 6;
+	repeated Output               outputs            = 7;
+			 map<string, Content> additional_content = 8; // filename (or other identifier) to file content
 }

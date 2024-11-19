@@ -1,6 +1,6 @@
 [package]
 name = "denkproto-rs"
-version = "1.0.20"
+version = "1.0.22"
 edition = "2021"
 description = "protobuf files for denkweit ecosystem"
 license = "MIT"
@@ -14,11 +14,16 @@ readme = "README.md"
 path = "src/lib.rs"
 
 [dependencies]
-tonic = "0.11.0"
-prost = "0.12.4"
+tonic = "0.12.3"
+prost = "0.13.3"
 tokio-stream = "0.1.15"
 protobuf = "3.3.0"
-tokio = { version = "1.37.0", features = ["rt-multi-thread", "macros", "sync", "time"] }
+tokio = { version = "1.37.0", features = [
+    "rt-multi-thread",
+    "macros",
+    "sync",
+    "time",
+] }
 [build-dependencies]
 protobuf-codegen = "3.4.0"
 tonic-build = "0.11.0"

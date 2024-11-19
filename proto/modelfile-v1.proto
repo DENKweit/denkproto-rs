@@ -36,6 +36,8 @@ enum DataType {
 	BOUNDING_BOX_LIST_SEGMENTATION_HIGH_RES =  9;
 	OPTICAL_CHARACTER_RECOGNITION           = 10;
 	BARCODES                                = 11;
+	BOUNDING_BOX_LIST_HALF_ORIENTATION      = 12;
+	BOUNDING_BOX_LIST_FULL_ORIENTATION      = 13;
 }
 
 // Keep in sync with results.proto
@@ -45,13 +47,16 @@ enum ModelType {
 }
 
 enum ModelOutputType {
-	TYPE_UNKNOWN                       = 0;
-	TYPE_CLASSIFICATION                = 1;
-	TYPE_SEGMENTATION                  = 2;
-	TYPE_INSTANCE_SEGMENTATION         = 3;
-	TYPE_OBJECT_DETECTION              = 4;
-	TYPE_ANOMALY_DETECTION             = 5;
-	TYPE_OPTICAL_CHARACTER_RECOGNITION = 6;
+	TYPE_UNKNOWN                           = 0;
+	TYPE_CLASSIFICATION                    = 1;
+	TYPE_SEGMENTATION                      = 2;
+	TYPE_INSTANCE_SEGMENTATION             = 3;
+	TYPE_OBJECT_DETECTION                  = 4;
+	TYPE_ANOMALY_DETECTION                 = 5;
+	TYPE_OPTICAL_CHARACTER_RECOGNITION     = 6;
+	TYPE_BARCODES                          = 7;
+	TYPE_OBJECT_DETECTION_HALF_ORIENTATION = 8;
+	TYPE_OBJECT_DETECTION_FULL_ORIENTATION = 9;
 }
 
 message RegionFromEdge {
@@ -78,6 +83,7 @@ message InputField {
 	         int32          training_image_w   =  8; // Image size with which the network has been trained
 	         int32          training_image_h   =  9;
 	         int32          training_image_c   = 10;
+	         bool           moving_window      = 11;
 }
 
 message OcrFormatRestrictionBlock {
@@ -114,10 +120,10 @@ message ModelFile {
 	         string            tenant_id          = 12;
 	         int32             onnx_version_major = 13;
 	         int32             onnx_version_minor = 14;
-			 string            model_uid          = 15;
-			 int64             model_timestamp    = 16;
-			 ModelType         model_type         = 17;
-			 ModelOutputType   model_output_type  = 18;
-			 FileType          file_type          = 19;
-			 string            key                = 20;
+	         string            model_uid          = 15;
+	         int64             model_timestamp    = 16;
+	         ModelType         model_type         = 17;
+	         ModelOutputType   model_output_type  = 18;
+	         FileType          file_type          = 19;
+	         string            key                = 20;
 }

@@ -30,13 +30,16 @@ enum ModelType {
 }
 
 enum ModelOutputType {
-	TYPE_UNKNOWN                       = 0;
-	TYPE_CLASSIFICATION                = 1;
-	TYPE_SEGMENTATION                  = 2;
-	TYPE_INSTANCE_SEGMENTATION         = 3;
-	TYPE_OBJECT_DETECTION              = 4;
-	TYPE_ANOMALY_DETECTION             = 5;
-	TYPE_OPTICAL_CHARACTER_RECOGNITION = 6;
+	TYPE_UNKNOWN                           = 0;
+	TYPE_CLASSIFICATION                    = 1;
+	TYPE_SEGMENTATION                      = 2;
+	TYPE_INSTANCE_SEGMENTATION             = 3;
+	TYPE_OBJECT_DETECTION                  = 4;
+	TYPE_ANOMALY_DETECTION                 = 5;
+	TYPE_OPTICAL_CHARACTER_RECOGNITION     = 6;
+	TYPE_BARCODES                          = 7;
+	TYPE_OBJECT_DETECTION_HALF_ORIENTATION = 8;
+	TYPE_OBJECT_DETECTION_FULL_ORIENTATION = 9;
 }
 
 enum BarcodeType {
@@ -112,34 +115,44 @@ message MinimalBoundingBox {
 	double angle    = 5;
 }
 
+message OrientedBoundingBox {
+	Point  center           = 1;
+	double width            = 2;
+	double height           = 3;
+	double angle            = 4;
+	bool   full_orientation = 5;
+}
+
 message FeatureField {
-	         string               label                      =  1;
-	         bool                 show                       =  2;
-	repeated int32                color                      =  3;
-	         int32                rect_x                     =  4;
-	         int32                rect_y                     =  5;
-	         int32                rect_w                     =  6;
-	         int32                rect_h                     =  7;
-	         double               probability                =  8;
-	         double               area                       =  9;
-	         double               length                     = 10;
-	         double               width                      = 11;
-	         double               mean_gray                  = 12;
-	         double               max_gray                   = 13;
-	         double               min_gray                   = 14;
-	repeated int32                in_area                    = 15;
-	repeated DefectAddress        overlaps_with              = 16;
-	         double               rect_x_mm                  = 17;
-	         double               rect_y_mm                  = 18;
-	         double               rect_w_mm                  = 19;
-	         double               rect_h_mm                  = 20;
-	repeated RowRLC               row_rlc                    = 21;
-	repeated OcrCharacterPosition ocr_character_position     = 22;
-	         MinimalBoundingBox   minimal_bounding_box       = 23;
-	repeated Point                minimal_bounding_box_point = 24;
-	         bool                 write_protected_label      = 25;
-	         BarcodeType          barcode_type               = 26;
-	         bytes                barcode_raw_bytes          = 27;
+	         string               label                       =  1;
+	         bool                 show                        =  2;
+	repeated int32                color                       =  3;
+	         int32                rect_x                      =  4;
+	         int32                rect_y                      =  5;
+	         int32                rect_w                      =  6;
+	         int32                rect_h                      =  7;
+	         double               probability                 =  8;
+	         double               area                        =  9;
+	         double               length                      = 10;
+	         double               width                       = 11;
+	         double               mean_gray                   = 12;
+	         double               max_gray                    = 13;
+	         double               min_gray                    = 14;
+	repeated int32                in_area                     = 15;
+	repeated DefectAddress        overlaps_with               = 16;
+	         double               rect_x_mm                   = 17;
+	         double               rect_y_mm                   = 18;
+	         double               rect_w_mm                   = 19;
+	         double               rect_h_mm                   = 20;
+	repeated RowRLC               row_rlc                     = 21;
+	repeated OcrCharacterPosition ocr_character_position      = 22;
+	         MinimalBoundingBox   minimal_bounding_box        = 23; // DEPRECATED
+	repeated Point                minimal_bounding_box_point  = 24; // DEPRECATED
+	         bool                 write_protected_label       = 25;
+	         BarcodeType          barcode_type                = 26;
+	         bytes                barcode_raw_bytes           = 27;
+	         OrientedBoundingBox  oriented_bounding_box       = 28;
+	repeated Point                oriented_bounding_box_point = 29;
 }
 
 // requires complementary array of type "datatype"
