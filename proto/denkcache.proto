@@ -21,6 +21,11 @@ enum ObjectSource {
     OBJECT_SOURCE_AZURE = 3;
 }
 
+message ObjectSourceMessage {
+    ObjectSource source = 1;
+    optional string source_info = 2;
+}
+
 message GetObjectRequest {
     string container_name = 1;
     string blob_name = 2;
@@ -28,7 +33,7 @@ message GetObjectRequest {
 
 message GetObjectResponse {
     bytes object = 1;
-    ObjectSource source = 2;
+    ObjectSourceMessage source = 2;
 }
 
 message CacheObjectRequest {
