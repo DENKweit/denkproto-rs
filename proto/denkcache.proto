@@ -36,10 +36,17 @@ message GetObjectResponse {
     ObjectSourceMessage source = 2;
 }
 
+enum CacheObjectPolicy {
+    MEMORY_ONLY = 0;
+    DISK_ONLY = 1;
+    MEMORY_AND_DISK = 2;
+}
+
 message CacheObjectRequest {
     string container_name = 1;
     string blob_name = 2;
     bytes object = 3;
+    optional CacheObjectPolicy cache_policy = 4;
 }
 
 message CacheObjectResponse {
