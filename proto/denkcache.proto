@@ -1,6 +1,10 @@
 syntax = "proto3";
 package denkcache;
 
+option go_package = "denkproto-go/denkcache";
+
+option csharp_namespace = "DENK.Proto.DENKcache";
+
 message ObjectExistsRequest {
     string container_name = 1;
     string blob_name = 2;
@@ -10,13 +14,31 @@ message ObjectExistsResponse {
     bool exists = 1;
 }
 
+enum ObjectSource {
+    OBJECT_SOURCE_MEMORY = 0;
+    OBJECT_SOURCE_DISK = 1;
+    OBJECT_SOURCE_DENKCACHE = 2;
+    OBJECT_SOURCE_AZURE = 3;
+}
+
 message GetObjectRequest {
     string container_name = 1;
     string blob_name = 2;
+    ObjectSource source = 3;
 }
 
 message GetObjectResponse {
     bytes object = 1;
+}
+
+message CacheObjectRequest {
+    string container_name = 1;
+    string blob_name = 2;
+    bytes object = 3;
+}
+
+message CacheObjectResponse {
+
 }
 
 message GetCachedObjectRequest {
@@ -45,5 +67,6 @@ service DENKcache {
     rpc HasObjectCached(HasObjectCachedRequest) returns (HasObjectCachedResponse);
     rpc ObjectExists (ObjectExistsRequest) returns (ObjectExistsResponse);
     rpc GetObject (GetObjectRequest) returns (GetObjectResponse);
+    rpc CacheObject (CacheObjectRequest) returns (CacheObjectResponse);
     rpc GetCachedObject (GetCachedObjectRequest) returns (GetCachedObjectResponse);
 }
