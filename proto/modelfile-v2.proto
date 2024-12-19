@@ -167,16 +167,17 @@ message ModelFile {
 			P_MIXED_PRECISION = 13;
 		}
 
-		FileType    file_type             =  1;
-		string      network_name          =  2;
-		string      network_id            =  3;
-		string      network_experiment_id =  4;
-		string      network_snapshot_id   =  5;
-		NetworkType network_type          =  6;
-		string      network_flavor        =  7;
-		Version     network_version       =  8;
-		Version     runtime_version       =  9;
-		Precision   precision             = 10;
+		FileType    file_type                   =  1;
+		string      network_name                =  2;
+		string      network_id                  =  3;
+		string      network_experiment_id       =  4;
+		string      network_snapshot_id         =  5;
+		NetworkType network_type                =  6;
+		string      network_flavor              =  7;
+		Version     network_version             =  8;
+		Version     runtime_version             =  9;
+		Precision   precision                   = 10;
+		Version     minimum_libdenkflow_version = 11;
 	}
 
 			 Version              protocol_version   = 1;
