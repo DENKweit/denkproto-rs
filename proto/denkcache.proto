@@ -75,7 +75,13 @@ message HasObjectCachedResponse {
 message PingPongRequest {}
 message PingPongResponse {}
 
+message ChangeSettingsRequest {
+    optional string log_level = 1;
+}
+message ChangeSettingsResponse {}
+
 service DENKcache {
+    rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse);
     rpc PingPong(PingPongRequest) returns (PingPongResponse);
     rpc HasObjectCached(HasObjectCachedRequest) returns (HasObjectCachedResponse);
     rpc ObjectExists (ObjectExistsRequest) returns (ObjectExistsResponse);
