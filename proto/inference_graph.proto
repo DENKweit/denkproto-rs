@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+package inference_graph;
+
+import "modelfile-v2.proto";
+
+option go_package = "denkproto-go/inference_graph";
+
+option csharp_namespace = "DENK.Proto.InferenceGraph";
+
+
+message ModelSource {
+    oneof model_source {
+        modelfile.v2.ModelFile from_proto = 1;
+    }
+}
+
+message ConstTensorNode {
+    message Uint64Array {
+        repeated uint64 data = 1;
+    }
+
+    message Int64Array {
+        repeated sint64 data = 1;
+    }
+
+    message Float64Array {
+        repeated double data = 1;
+    }
+
+             string name   = 1;
+             string output = 2;
+
+    repeated uint64 shape  = 3;
+    oneof data {
+        Uint64Array  uint64_data  = 4;
+        Int64Array   int64_data   = 5;
+        Float64Array float64_data = 6;
+    }
+}
+
+message GenerateNumberNode {
+    string name   = 1;
+    string output = 2;
+
+    uint64 min    = 3;
+    uint64 max    = 4;
+}
+
+message AddNumbersNode {
+    string name           = 1;
+    string input_number_1 = 2;
+    string input_number_2 = 3;
+    string output         = 4;
+}
+
+message ImageResizeNode {
+    string name        = 1;
+    string input_size  = 2;
+    string input_image = 3;
+    string output      = 4;
+}
+
+message ImagePatchesNode {
+    string name                     = 1;
+    string input_image              = 2;
+    string input_boxes              = 3;
+    string input_batch_map          = 4;
+    string input_target_size        = 5;
+    string input_maximum_iterations = 6;
+    string output                   = 7;
+}
+
+message VirtualCameraNode {
+    string name   = 1;
+    string output = 2;
+
+    string path   = 3;
+}
+
+message ImageClassificationNode {
+    string      name         = 1;
+    string      input        = 2;
+    string      output       = 3;
+
+    ModelSource model_source = 4;
+}
+
+message ImageObjectDetectionNode {
+    string      name         = 1;
+    string      input        = 2;
+    string      output       = 3;
+
+    ModelSource model_source = 4;
+}
+
+message ImageOcrNode {
+    string      name         = 1;
+    string      input        = 2;
+    string      output       = 3;
+
+    ModelSource model_source = 4;
+}
+
+message BoundingBoxFilterNode {
+    string name             = 1;
+    string input_threshold  = 2;
+    string input_boxes      = 3;
+    string output_boxes     = 4;
+    string output_batch_map = 5;
+}
+
+message Node {
+    oneof NodeType {
+        ConstTensorNode          const_tensor_node           =  1;
+        GenerateNumberNode       generate_number_node        =  2;
+        AddNumbersNode           add_numbers_node            =  3;
+        ImageResizeNode          image_resize_node           =  4;
+        ImagePatchesNode         image_patches_node          =  5;
+        VirtualCameraNode        virtual_camera_node         =  6;
+        ImageClassificationNode  image_classification_node   =  7;
+        ImageObjectDetectionNode image_object_detection_node =  8;
+        ImageOcrNode             image_ocr_node              =  9;
+        BoundingBoxFilterNode    bounding_box_filter_node    = 10;
+    }
+}
+
+message Graph {
+    repeated Node  nodes      = 1;
+             int64 created_at = 2;
+}

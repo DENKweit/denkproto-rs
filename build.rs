@@ -9,6 +9,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .input("./proto/DENKbuffer.proto")
         .input("./proto/modelfile-v2.proto")
         .input("./proto/denkcache.proto")
+        .input("./proto/inference_graph.proto")
         // Specify output directory relative to Cargo output directory.
         .cargo_out_dir("protos")
         .run_from_script();
