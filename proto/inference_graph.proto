@@ -29,20 +29,16 @@ message ConstTensorNode {
     }
 
              string name   = 1;
-             string output = 2;
-
-    repeated uint64 shape  = 3;
+    repeated uint64 shape  = 2;
     oneof data {
-        Uint64Array  uint64_data  = 4;
-        Int64Array   int64_data   = 5;
-        Float64Array float64_data = 6;
+        Uint64Array  uint64_data  = 3;
+        Int64Array   int64_data   = 4;
+        Float64Array float64_data = 5;
     }
 }
 
 message GenerateNumberNode {
     string name   = 1;
-    string output = 2;
-
     uint64 min    = 3;
     uint64 max    = 4;
 }
@@ -51,14 +47,12 @@ message AddNumbersNode {
     string name           = 1;
     string input_number_1 = 2;
     string input_number_2 = 3;
-    string output         = 4;
 }
 
 message ImageResizeNode {
     string name        = 1;
     string input_size  = 2;
     string input_image = 3;
-    string output      = 4;
 }
 
 message ImagePatchesNode {
@@ -68,46 +62,35 @@ message ImagePatchesNode {
     string input_batch_map          = 4;
     string input_target_size        = 5;
     string input_maximum_iterations = 6;
-    string output                   = 7;
 }
 
 message VirtualCameraNode {
     string name   = 1;
-    string output = 2;
-
-    string path   = 3;
+    string path   = 2;
 }
 
 message ImageClassificationNode {
     string      name         = 1;
     string      input        = 2;
-    string      output       = 3;
-
-    ModelSource model_source = 4;
+    ModelSource model_source = 3;
 }
 
 message ImageObjectDetectionNode {
     string      name         = 1;
     string      input        = 2;
-    string      output       = 3;
-
-    ModelSource model_source = 4;
+    ModelSource model_source = 3;
 }
 
 message ImageOcrNode {
     string      name         = 1;
     string      input        = 2;
-    string      output       = 3;
-
-    ModelSource model_source = 4;
+    ModelSource model_source = 3;
 }
 
 message BoundingBoxFilterNode {
     string name             = 1;
     string input_threshold  = 2;
     string input_boxes      = 3;
-    string output_boxes     = 4;
-    string output_batch_map = 5;
 }
 
 message Node {

@@ -107,6 +107,15 @@ message Point {
 	double y = 2;
 }
 
+message PointInt {
+	int64 x = 1;
+	int64 y = 2;
+}
+
+message Contour {
+	repeated PointInt points = 1; // counter-clockwise: positive contour, clockwise: negative contour
+}
+
 message MinimalBoundingBox {
 	double center_x = 1;
 	double center_y = 2;
@@ -153,6 +162,8 @@ message FeatureField {
 	         bytes                barcode_raw_bytes           = 27;
 	         OrientedBoundingBox  oriented_bounding_box       = 28;
 	repeated Point                oriented_bounding_box_point = 29;
+	         bytes                segmentation_mask           = 30;
+	repeated Contour              segmentation_contours       = 31;
 }
 
 // requires complementary array of type "datatype"

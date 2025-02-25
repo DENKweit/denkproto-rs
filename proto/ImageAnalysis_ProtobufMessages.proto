@@ -90,7 +90,8 @@ message pb_MessageHeader{
         SETCONFIGFILE          = 1001;   // GUI -> IA             // Selects a new config file by name
         MODIFYCONFIGFILE       = 1002;   // GUI -> IA             // Overwrites the current config file with new content
         GETSTATISTICS          = 1003;   // GUI -> IA             // Get current statistics as CSV string
-        OPENDIRECTORYINBRWOSER = 1004;   // GUI -> IA             // Get current statistics as CSV string
+        OPENDIRECTORYINBROWSER = 1004;   // GUI -> IA             // Open a directory on the Hub in the browser
+        OPENTASKINBROWSER      = 1005;   // GUI -> IA             // Open a task on the Hub in the browser
     }
 
     required MessageType message_type              = 1;                    // type of this message
@@ -276,6 +277,7 @@ message pb_Body_AnalyzeImage{
         optional string                   upload_path        = 1; // upload path with full filename; the extension determines the filetype
         optional bool                     upload_annotations = 2; // controls whether annotations will be uploaded together with the image
         optional int32                    compression_option = 3 [default = -1]; // default compression parameters will be used if left at "-1", which is recommended in most cases; the exact meaning of this value depends on the chosen file format
+        optional string                   task_name          = 4;
     }
 
     required string                 serial_number_image   = 1;     // serial number of the measurement (GUID)
@@ -318,6 +320,15 @@ message pb_Body_ImageResult{
         repeated pb_DENK_OcrCharacter ocr_character = 1;
     }
 
+    message pb_DENK_PointInt {
+        optional int64 x = 1;
+        optional int64 y = 2;
+    }
+
+    message pb_DENK_Contour {
+        repeated pb_DENK_PointInt points = 1; // counter-clockwise: positive contour, clockwise: negative contour
+    }
+
     message pb_Feature{
         message pb_FeatureInfo{
             optional pb_Rect outline_rect_px          = 1;                        // outline rectangle in pixels
@@ -344,6 +355,8 @@ message pb_Body_ImageResult{
             repeated pb_DENK_Point                minimal_bounding_box_point = 105;
             optional string                       ocr_text                   = 106;
             repeated pb_DENK_OcrCharacterPosition ocr_character_position     = 107;
+            optional bytes                        segmentation_mask          = 108; // either 0 or 255, castable into a one channel mask of outline_rect_px's width * height
+            repeated pb_DENK_Contour              segmentation_contours      = 109; // the contour of the segmentation as OpenCV-style contour points
         }
         required string           feature_type_name   = 1;      // name of the feature type
         repeated pb_FeatureInfo   feature_infos       = 2;      // one or more features of this feature type
@@ -428,4 +441,10 @@ message pb_Body_GetStatistics_Response{
 
 message pb_Body_OpenDirectoryInBrowser{
     required string             path                   = 1;
+}
+
+
+
+message pb_Body_OpenTaskInBrowser{
+    required string             task_name              = 1;
 }
