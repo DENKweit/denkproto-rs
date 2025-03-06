@@ -85,7 +85,9 @@ message InvalidateObjectRequest {
     string blob_name = 2;
 }
 
-message InvalidateObjectResponse {}
+message InvalidateObjectResponse {
+    bool existed = 1;
+}
 
 service DENKcache {
     rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse);
