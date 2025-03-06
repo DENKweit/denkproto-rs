@@ -11,17 +11,19 @@ option csharp_namespace = "DENK.Proto.InferenceGraph";
 
 message ModelSource {
     oneof model_source {
-        modelfile.v2.ModelFile from_proto = 1;
+        modelfile.v2.ModelFile from_proto                 = 1;
+        string                 from_network_id            = 2;
+        string                 from_network_experiment_id = 3;
     }
 }
 
 message ConstTensorNode {
     message Uint64Array {
-        repeated uint64 data = 1;
+        repeated uint32 data = 1;
     }
 
     message Int64Array {
-        repeated sint64 data = 1;
+        repeated sint32 data = 1;
     }
 
     message Float64Array {
@@ -31,7 +33,7 @@ message ConstTensorNode {
              string name   = 1;
              string output = 2;
 
-    repeated uint64 shape  = 3;
+    repeated uint32 shape  = 3;
     oneof data {
         Uint64Array  uint64_data  = 4;
         Int64Array   int64_data   = 5;
@@ -43,8 +45,8 @@ message GenerateNumberNode {
     string name   = 1;
     string output = 2;
 
-    uint64 min    = 3;
-    uint64 max    = 4;
+    uint32 min    = 3;
+    uint32 max    = 4;
 }
 
 message AddNumbersNode {
@@ -126,6 +128,7 @@ message Node {
 }
 
 message Graph {
-    repeated Node  nodes      = 1;
-             int64 created_at = 2;
+    repeated Node   nodes      = 1;
+             uint32 created_at = 2;
+             string license_id = 3;
 }
