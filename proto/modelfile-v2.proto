@@ -181,7 +181,7 @@ message ModelFile {
 	}
 
 			 Version              protocol_version   = 1;
-			 uint64               created_at         = 2;
+			 int64                created_at         = 2;
 			 FileInfo             file_info          = 3;
 			 Content              content            = 4;
 	repeated ClassLabel           class_labels       = 5;
