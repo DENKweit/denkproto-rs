@@ -5,7 +5,7 @@ syntax = "proto3";
 
 package results;
 
-option go_package = "denkproto-go/results";
+option go_package = "github.com/DENKweit/denkproto-go/results";
 
 option csharp_namespace = "DENK.Proto.Results";
 

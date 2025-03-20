@@ -5,7 +5,7 @@ syntax = "proto3";
 
 package modelfile.v1;
 
-option go_package = "denkproto-go/modelfile/v1";
+option go_package = "github.com/DENKweit/denkproto-go/modelfile/v1";
 
 option csharp_namespace = "DENK.Proto.Modelfile.V1";
 

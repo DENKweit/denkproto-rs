@@ -5,15 +5,15 @@ syntax = "proto3";
 
 package modelfile.v2;
 
-option go_package = "denkproto-go/modelfile/v2";
+option go_package = "github.com/DENKweit/denkproto-go/modelfile/v2";
 
 option csharp_namespace = "DENK.Proto.Modelfile.V2";
 
 message ModelFile {
 	message Version {
-		uint32 major = 1;
-		uint32 minor = 2;
-		uint32 patch = 3;
+		uint64 major = 1;
+		uint64 minor = 2;
+		uint64 patch = 3;
 	}
 
 	message Content {
@@ -46,9 +46,9 @@ message ModelFile {
 	}
 
 	message ImageSize {
-		uint32 width    = 1;
-		uint32 height   = 2;
-		uint32 channels = 3;
+		uint64 width    = 1;
+		uint64 height   = 2;
+		uint64 channels = 3;
 	}
 
 	message RegionFromEdge {
@@ -91,14 +91,14 @@ message ModelFile {
 		}
 
 		message BoundingBoxesOutputFormat {
-			uint32 number_of_boxes          = 1;
-			uint32 stride                   = 2;
-			uint32 x1_offset                = 3;
-			uint32 y1_offset                = 4;
-			uint32 x2_offset                = 5;
-			uint32 y2_offset                = 6;
-			uint32 confidence_offset        = 7;
-			uint32 class_label_index_offset = 8;
+			uint64 number_of_boxes          = 1;
+			uint64 stride                   = 2;
+			uint64 x1_offset                = 3;
+			uint64 y1_offset                = 4;
+			uint64 x2_offset                = 5;
+			uint64 y2_offset                = 6;
+			uint64 confidence_offset        = 7;
+			uint64 class_label_index_offset = 8;
 		}
 
 		message BoundingBoxSegmentationsOutputFormat {
@@ -120,7 +120,7 @@ message ModelFile {
 				bool          ignore              = 3;
 			}
 
-					 uint32    number_of_characters = 1; // 0 is interpreted as no character limit
+					 uint64    number_of_characters = 1; // 0 is interpreted as no character limit
 			repeated Character characters           = 2;
 		}
 
@@ -181,7 +181,7 @@ message ModelFile {
 	}
 
 			 Version              protocol_version   = 1;
-			 uint32               created_at         = 2;
+			 uint64               created_at         = 2;
 			 FileInfo             file_info          = 3;
 			 Content              content            = 4;
 	repeated ClassLabel           class_labels       = 5;

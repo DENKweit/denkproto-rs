@@ -4,7 +4,7 @@ package inference_graph;
 
 import "modelfile-v2.proto";
 
-option go_package = "denkproto-go/inference_graph";
+option go_package = "github.com/DENKweit/denkproto-go/inference_graph";
 
 option csharp_namespace = "DENK.Proto.InferenceGraph";
 
@@ -19,11 +19,11 @@ message ModelSource {
 
 message ConstTensorNode {
     message Uint64Array {
-        repeated uint32 data = 1;
+        repeated uint64 data = 1;
     }
 
     message Int64Array {
-        repeated sint32 data = 1;
+        repeated sint64 data = 1;
     }
 
     message Float64Array {
@@ -45,8 +45,8 @@ message GenerateNumberNode {
     string name   = 1;
     string output = 2;
 
-    uint32 min    = 3;
-    uint32 max    = 4;
+    uint64 min    = 3;
+    uint64 max    = 4;
 }
 
 message AddNumbersNode {
@@ -129,6 +129,6 @@ message Node {
 
 message Graph {
     repeated Node   nodes      = 1;
-             uint32 created_at = 2;
+             uint64 created_at = 2;
              string license_id = 3;
 }

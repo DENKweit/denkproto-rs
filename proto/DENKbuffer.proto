@@ -4,7 +4,7 @@ package denkproto;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "denkproto-go/denkbuffer";
+option go_package = "github.com/DENKweit/denkproto-go/denkbuffer";
 
 option csharp_namespace = "DENK.Proto";
 

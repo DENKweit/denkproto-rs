@@ -1,7 +1,7 @@
 syntax = "proto3";
 package denkcache;
 
-option go_package = "denkproto-go/denkcache";
+option go_package = "github.com/DENKweit/denkproto-go/denkcache";
 
 option csharp_namespace = "DENK.Proto.DENKcache";
 

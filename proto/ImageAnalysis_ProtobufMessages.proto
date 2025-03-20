@@ -61,7 +61,7 @@ syntax = "proto2";
 
 package image_analysis;
 
-option go_package = "denkproto-go/image-analysis";
+option go_package = "github.com/DENKweit/denkproto-go/image-analysis";
 
 option csharp_namespace = "DENK.Proto.IA";
 
