@@ -99,6 +99,7 @@ message ModelFile {
 			uint64 y2_offset                = 6;
 			uint64 confidence_offset        = 7;
 			uint64 class_label_index_offset = 8;
+			uint64 batch_index_offset 		= 9;
 		}
 
 		message BoundingBoxSegmentationsOutputFormat {
