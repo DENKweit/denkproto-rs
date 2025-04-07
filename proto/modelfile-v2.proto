@@ -136,7 +136,7 @@ message ModelFile {
 
 	message FileInfo {
 		enum FileType {
-			FT_ONNX_MODEL   = 0;
+			FT_MODEL        = 0;
 			FT_ZXING_KEY    = 1;
 			FT_VIZIOTIX_KEY = 2;
 		}
@@ -153,32 +153,45 @@ message ModelFile {
 
 		enum Precision {
 			P_UNDEFINED       =  0;
-			P_FP8             =  1;
-			P_FP16            =  2;
-			P_FP32            =  3;
-			P_FP64            =  4;
-			P_INT8            =  5;
-			P_INT16           =  6;
-			P_INT32           =  7;
-			P_INT64           =  8;
-			P_UINT8           =  9;
-			P_UINT16          = 10;
-			P_UINT32          = 11;
-			P_UINT64          = 12;
-			P_MIXED_PRECISION = 13;
+			P_MIXED_PRECISION =  1;
+			P_FP8             =  2;
+			P_FP16            =  3;
+			P_FP32            =  4;
+			P_FP64            =  5;
+			P_BF8             =  6;
+			P_BF16            =  7;
+			P_BF32            =  8;
+			P_BF64            =  9;
+			P_INT8            = 10;
+			P_INT16           = 11;
+			P_INT32           = 12;
+			P_INT64           = 13;
+			P_UINT8           = 14;
+			P_UINT16          = 15;
+			P_UINT32          = 16;
+			P_UINT64          = 17;
+			P_2_STATE         = 18;
+			P_3_STATE         = 19;
+			P_4_STATE         = 20;
 		}
 
-		FileType    file_type                   =  1;
-		string      network_name                =  2;
-		string      network_id                  =  3;
-		string      network_experiment_id       =  4;
-		string      network_snapshot_id         =  5;
-		NetworkType network_type                =  6;
-		string      network_flavor              =  7;
-		Version     network_version             =  8;
-		Version     runtime_version             =  9;
-		Precision   precision                   = 10;
-		Version     minimum_libdenkflow_version = 11;
+		enum HardwareTarget {
+			HT_DEFAULT  = 0;
+			HT_TENSORRT = 1;
+		}
+
+		FileType       file_type                   =  1;
+		string         network_name                =  2;
+		string         network_id                  =  3;
+		string         network_experiment_id       =  4;
+		string         network_snapshot_id         =  5;
+		NetworkType    network_type                =  6;
+		string         network_flavor              =  7;
+		Version        network_version             =  8;
+		Version        runtime_version             =  9;
+		Precision      precision                   = 10;
+		Version        minimum_libdenkflow_version = 11;
+		HardwareTarget hardware_target             = 12;
 	}
 
 			 Version              protocol_version   = 1;

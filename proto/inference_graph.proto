@@ -10,7 +10,7 @@ option csharp_namespace = "DENK.Proto.InferenceGraph";
 
 
 message ModelSource {
-    oneof model_source {
+    oneof source_type {
         modelfile.v2.ModelFile from_proto                 = 1;
         string                 from_network_id            = 2;
         string                 from_network_experiment_id = 3;
@@ -34,7 +34,7 @@ message ConstTensorNode {
              string output = 2;
 
     repeated uint32 shape  = 3;
-    oneof data {
+    oneof data_type {
         Uint64Array  uint64_data  = 4;
         Int64Array   int64_data   = 5;
         Float64Array float64_data = 6;
@@ -94,6 +94,8 @@ message ImageObjectDetectionNode {
     string      output       = 3;
 
     ModelSource model_source = 4;
+
+    bool scale_bounding_Boxes = 5;
 }
 
 message ImageOcrNode {
@@ -105,15 +107,15 @@ message ImageOcrNode {
 }
 
 message BoundingBoxFilterNode {
-    string name             = 1;
-    string input_threshold  = 2;
-    string input_boxes      = 3;
-    string output_boxes     = 4;
-    string output_batch_map = 5;
+    string name                       = 1;
+    string input_confidence_threshold = 2;
+    string input_iou_threshold        = 3;
+    string input_boxes                = 4;
+    string output_boxes               = 5;
 }
 
 message Node {
-    oneof NodeType {
+    oneof node_type {
         ConstTensorNode          const_tensor_node           =  1;
         GenerateNumberNode       generate_number_node        =  2;
         AddNumbersNode           add_numbers_node            =  3;
@@ -129,6 +131,6 @@ message Node {
 
 message Graph {
     repeated Node   nodes      = 1;
-             int64 created_at = 2;
+             int64  created_at = 2;
              string license_id = 3;
 }
