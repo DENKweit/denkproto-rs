@@ -95,7 +95,7 @@ message ImageObjectDetectionNode {
 
     ModelSource model_source = 4;
 
-    bool scale_bounding_Boxes = 5;
+    bool scale_bounding_boxes = 5;
 }
 
 message ImageOcrNode {
