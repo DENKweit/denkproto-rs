@@ -137,8 +137,8 @@ message ModelFile {
 	message FileInfo {
 		enum FileType {
 			FT_MODEL        = 0;
-			FT_ZXING_KEY    = 1;
-			FT_VIZIOTIX_KEY = 2;
+			FT_ZXING_KEY    = 1; // TODO: remove
+			FT_VIZIOTIX_KEY = 2; // TODO: remove
 		}
 
 		enum NetworkType {

@@ -3,17 +3,19 @@ syntax = "proto3";
 package inference_graph;
 
 import "modelfile-v2.proto";
+import "validate.proto";
 
-option go_package = "github.com/DENKweit/denkproto-go/inference_graph";
 
 option csharp_namespace = "DENK.Proto.InferenceGraph";
-
+option go_package = "github.com/DENKweit/denkproto-go/inference_graph";
 
 message ModelSource {
     oneof source_type {
+        option (validate.required) = true;
+
         modelfile.v2.ModelFile from_proto                 = 1;
-        string                 from_network_id            = 2;
-        string                 from_network_experiment_id = 3;
+        string                 from_network_id            = 2 [(validate.rules).string.uuid = true];
+        string                 from_network_experiment_id = 3 [(validate.rules).string.uuid = true];
     }
 }
 
@@ -30,107 +32,157 @@ message ConstTensorNode {
         repeated double data = 1;
     }
 
-             string name   = 1;
-             string output = 2;
-
-    repeated uint32 shape  = 3;
+    string name   = 1 [(validate.rules).string.min_len = 1];
+    repeated uint32 shape  = 2;
     oneof data_type {
-        Uint64Array  uint64_data  = 4;
-        Int64Array   int64_data   = 5;
-        Float64Array float64_data = 6;
+        option (validate.required) = true;
+
+        Uint64Array  uint64_data  = 3;
+        Int64Array   int64_data   = 4;
+        Float64Array float64_data = 5;
     }
-}
 
-message GenerateNumberNode {
-    string name   = 1;
-    string output = 2;
-
-    uint64 min    = 3;
-    uint64 max    = 4;
-}
-
-message AddNumbersNode {
-    string name           = 1;
-    string input_number_1 = 2;
-    string input_number_2 = 3;
-    string output         = 4;
+    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
 }
 
 message ImageResizeNode {
-    string name        = 1;
-    string input_size  = 2;
-    string input_image = 3;
-    string output      = 4;
+    string name                  = 1 [(validate.rules).string.min_len = 1];
+    string input_size  = 2 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+    }];
+    string input_image = 3 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+    }];
+    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
 }
 
 message ImagePatchesNode {
-    string name                     = 1;
-    string input_image              = 2;
-    string input_boxes              = 3;
-    string input_batch_map          = 4;
-    string input_target_size        = 5;
-    string input_maximum_iterations = 6;
-    string output                   = 7;
+    message TargetSizeSource {
+        message ImageSize {
+            uint64 height = 1 [(validate.rules).uint64.gte = 0];
+            uint64 width = 2 [(validate.rules).uint64.gte = 0];
+        }
+        oneof source {
+            option (validate.required) = true;
+    
+            string topic = 1 [(validate.rules).string = {
+                min_len: 1,
+                pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+            }];
+            ImageSize size = 2;
+    
+        }
+    }
+    message MaxIterationsCountSource {
+        oneof source {
+            option (validate.required) = true;
+
+            string topic = 1 [(validate.rules).string = {
+                min_len: 1,
+                pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+            }];
+            uint64 value = 2 [(validate.rules).uint64.gte = 0];
+        }
+    }
+    string name                     = 1 [(validate.rules).string.min_len = 1];
+    string input_image              = 2 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+    }];
+    string input_bounding_boxes              = 3 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+    }];
+    TargetSizeSource input_target_size = 4 [(validate.rules).message.required = true];
+    MaxIterationsCountSource input_maximum_iterations = 5 [(validate.rules).message.required = true];
+    
+    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
 }
 
 message VirtualCameraNode {
-    string name   = 1;
-    string output = 2;
-
-    string path   = 3;
+    string name   = 1 [(validate.rules).string.min_len = 1];
+    string path   = 2 [(validate.rules).string.min_len = 1];
+    
+    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
 }
 
 message ImageClassificationNode {
     string      name         = 1;
-    string      input        = 2;
-    string      output       = 3;
+    string      input_image        = 2 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+    }];
+    ModelSource model_source = 3;
 
-    ModelSource model_source = 4;
+    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
 }
 
 message ImageObjectDetectionNode {
     string      name         = 1;
-    string      input        = 2;
-    string      output       = 3;
+    string      input_image        = 2 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+    }];
+    ModelSource model_source = 3;
 
-    ModelSource model_source = 4;
+    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
 
     bool scale_bounding_boxes = 5;
 }
 
 message ImageOcrNode {
     string      name         = 1;
-    string      input        = 2;
-    string      output       = 3;
+    string      input_image        = 2 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+    }];
+    ModelSource model_source = 3;
 
-    ModelSource model_source = 4;
+    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
 }
 
 message BoundingBoxFilterNode {
-    string name                       = 1;
-    string input_confidence_threshold = 2;
-    string input_iou_threshold        = 3;
-    string input_boxes                = 4;
-    string output_boxes               = 5;
+    message ThresholdSource {
+        oneof source {
+            option (validate.required) = true;
+
+            string topic = 1 [(validate.rules).string = {
+                min_len: 1,
+                pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+            }];
+            float value = 2 [(validate.rules).float = {gte: 0, lte: 1}];
+        }
+    }
+    string name                       = 1 [(validate.rules).string.min_len = 1];
+    string input_bounding_boxes                = 2 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
+    }];
+    ThresholdSource input_score_threshold = 3;
+    ThresholdSource input_iou_threshold        = 4;
+    
+    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
 }
 
 message Node {
     oneof node_type {
+        option (validate.required) = true;
+
         ConstTensorNode          const_tensor_node           =  1;
-        GenerateNumberNode       generate_number_node        =  2;
-        AddNumbersNode           add_numbers_node            =  3;
-        ImageResizeNode          image_resize_node           =  4;
-        ImagePatchesNode         image_patches_node          =  5;
-        VirtualCameraNode        virtual_camera_node         =  6;
-        ImageClassificationNode  image_classification_node   =  7;
-        ImageObjectDetectionNode image_object_detection_node =  8;
-        ImageOcrNode             image_ocr_node              =  9;
-        BoundingBoxFilterNode    bounding_box_filter_node    = 10;
+        ImageResizeNode          image_resize_node           =  2;
+        ImagePatchesNode         image_patches_node          =  3;
+        VirtualCameraNode        virtual_camera_node         =  4;
+        ImageClassificationNode  image_classification_node   =  5;
+        ImageObjectDetectionNode image_object_detection_node =  6;
+        ImageOcrNode             image_ocr_node              =  7;
+        BoundingBoxFilterNode    bounding_box_filter_node    = 8;
     }
 }
 
 message Graph {
     repeated Node   nodes      = 1;
              int64  created_at = 2;
-             string license_id = 3;
+             string license_id = 3 [(validate.rules).string.uuid = true];
 }
