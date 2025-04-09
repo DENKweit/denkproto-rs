@@ -1,6 +1,6 @@
 [package]
 name = "denkproto-rs"
-version = "1.0.66"
+version = "1.0.67"
 edition = "2021"
 description = "protobuf files for denkweit ecosystem"
 license = "MIT"
@@ -26,6 +26,7 @@ tokio = { version = "1.44.2", features = [
 ] }
 prost-validate = { version = "0.2.6", features = ["derive"] }
 regex = "1.11.1"
+
 [build-dependencies]
 prost-build = "0.13.5"
 prost-validate-build = "0.2.6"

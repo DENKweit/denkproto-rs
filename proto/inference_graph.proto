@@ -19,6 +19,18 @@ message ModelSource {
     }
 }
 
+enum ExecutionProvider {
+    CPU = 0;
+    CUDA = 1;
+    DIRECTML = 2;
+    TENSORRT = 3;
+}
+
+message SessionInfo {
+    ExecutionProvider execution_provider = 1 [(validate.rules).enum.defined_only = true];
+    int32 device_id = 2 [(validate.rules).int32.gte = 0];
+}
+
 message ConstTensorNode {
     message Uint64Array {
         repeated uint64 data = 1;
@@ -42,7 +54,10 @@ message ConstTensorNode {
         Float64Array float64_data = 5;
     }
 
-    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
+    string output_port_name      = 6 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+    }];
 }
 
 message ImageResizeNode {
@@ -55,7 +70,11 @@ message ImageResizeNode {
         min_len: 1,
         pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
     }];
-    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
+    string output_port_name      = 4 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+    }];
+    optional SessionInfo session_info = 5;
 }
 
 message ImagePatchesNode {
@@ -96,16 +115,22 @@ message ImagePatchesNode {
         pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
     }];
     TargetSizeSource input_target_size = 4 [(validate.rules).message.required = true];
-    MaxIterationsCountSource input_maximum_iterations = 5 [(validate.rules).message.required = true];
-    
-    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
+    string output_port_name      = 5 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+    }];
+    optional MaxIterationsCountSource input_maximum_iterations = 6 [(validate.rules).message.required = true];
+    optional SessionInfo session_info = 7;
 }
 
 message VirtualCameraNode {
     string name   = 1 [(validate.rules).string.min_len = 1];
     string path   = 2 [(validate.rules).string.min_len = 1];
     
-    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
+    string output_port_name      = 3 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+    }];
 }
 
 message ImageClassificationNode {
@@ -114,9 +139,12 @@ message ImageClassificationNode {
         min_len: 1,
         pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
     }];
-    ModelSource model_source = 3;
-
-    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
+    ModelSource model_source = 3 [(validate.rules).message.required = true];
+    string output_port_name      = 4 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+    }];
+    optional SessionInfo session_info = 5;
 }
 
 message ImageObjectDetectionNode {
@@ -125,11 +153,14 @@ message ImageObjectDetectionNode {
         min_len: 1,
         pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
     }];
-    ModelSource model_source = 3;
+    ModelSource model_source = 3 [(validate.rules).message.required = true];
 
     bool scale_bounding_boxes = 4;
-
-    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
+    string output_port_name      = 5 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+    }];
+    optional SessionInfo session_info = 6;
 }
 
 message ImageOcrNode {
@@ -138,9 +169,12 @@ message ImageOcrNode {
         min_len: 1,
         pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
     }];
-    ModelSource model_source = 3;
-
-    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
+    ModelSource model_source = 3 [(validate.rules).message.required = true];
+    string output_port_name      = 4 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+    }];
+    optional SessionInfo session_info = 5;
 }
 
 message BoundingBoxFilterNode {
@@ -160,10 +194,14 @@ message BoundingBoxFilterNode {
         min_len: 1,
         pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
     }];
-    ThresholdSource input_score_threshold = 3;
-    ThresholdSource input_iou_threshold        = 4;
-    
-    string output_port_name      = 99 [(validate.rules).string.pattern = "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"];
+    string output_port_name      = 3 [(validate.rules).string = {
+        min_len: 1,
+        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+    }];
+
+    optional ThresholdSource input_score_threshold = 4;
+    optional ThresholdSource input_iou_threshold        = 5;
+    optional SessionInfo session_info = 6;
 }
 
 message Node {
