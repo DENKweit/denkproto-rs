@@ -10,6 +10,6 @@ pub mod denkcache {
     include!(concat!(env!("OUT_DIR"), "/denkcache.rs"));
 }
 
-pub mod denkcache_proto {
+pub mod inference_graph {
     include!(concat!(env!("OUT_DIR"), "/inference_graph.rs"));
 }
