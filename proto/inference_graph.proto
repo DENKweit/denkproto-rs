@@ -56,7 +56,7 @@ message ConstTensorNode {
 
     string output_port_name      = 6 [(validate.rules).string = {
         min_len: 1,
-        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+        pattern: "^[a-zA-Z0-9_-]+$"
     }];
 }
 
@@ -72,7 +72,7 @@ message ImageResizeNode {
     }];
     string output_port_name      = 4 [(validate.rules).string = {
         min_len: 1,
-        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+        pattern: "^[a-zA-Z0-9_-]+$"
     }];
     optional SessionInfo session_info = 5;
 }
@@ -117,7 +117,7 @@ message ImagePatchesNode {
     TargetSizeSource input_target_size = 4 [(validate.rules).message.required = true];
     string output_port_name      = 5 [(validate.rules).string = {
         min_len: 1,
-        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+        pattern: "^[a-zA-Z0-9_-]+$"
     }];
     optional MaxIterationsCountSource input_maximum_iterations = 6 [(validate.rules).message.required = true];
     optional SessionInfo session_info = 7;
@@ -129,7 +129,7 @@ message VirtualCameraNode {
     
     string output_port_name      = 3 [(validate.rules).string = {
         min_len: 1,
-        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+        pattern: "^[a-zA-Z0-9_-]+$"
     }];
 }
 
@@ -142,7 +142,7 @@ message ImageClassificationNode {
     ModelSource model_source = 3 [(validate.rules).message.required = true];
     string output_port_name      = 4 [(validate.rules).string = {
         min_len: 1,
-        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+        pattern: "^[a-zA-Z0-9_-]+$"
     }];
     optional SessionInfo session_info = 5;
 }
@@ -158,7 +158,7 @@ message ImageObjectDetectionNode {
     bool scale_bounding_boxes = 4;
     string output_port_name      = 5 [(validate.rules).string = {
         min_len: 1,
-        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+        pattern: "^[a-zA-Z0-9_-]+$"
     }];
     optional SessionInfo session_info = 6;
 }
@@ -172,7 +172,7 @@ message ImageOcrNode {
     ModelSource model_source = 3 [(validate.rules).message.required = true];
     string output_port_name      = 4 [(validate.rules).string = {
         min_len: 1,
-        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+        pattern: "^[a-zA-Z0-9_-]+$"
     }];
     optional SessionInfo session_info = 5;
 }
@@ -196,7 +196,7 @@ message BoundingBoxFilterNode {
     }];
     string output_port_name      = 3 [(validate.rules).string = {
         min_len: 1,
-        pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+        pattern: "^[a-zA-Z0-9_-]+$"
     }];
 
     optional ThresholdSource input_score_threshold = 4;
