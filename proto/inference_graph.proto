@@ -94,17 +94,6 @@ message ImagePatchesNode {
     
         }
     }
-    message MaxIterationsCountSource {
-        oneof source {
-            option (validate.required) = true;
-
-            string topic = 1 [(validate.rules).string = {
-                min_len: 1,
-                pattern: "^[a-zA-Z0-9_]+\\/[a-zA-Z0-9_]+([?]timeout=\\d+)?$"
-            }];
-            uint64 value = 2 [(validate.rules).uint64.gte = 0];
-        }
-    }
     string name                     = 1 [(validate.rules).string.min_len = 1];
     string input_image              = 2 [(validate.rules).string = {
         min_len: 1,
@@ -119,7 +108,7 @@ message ImagePatchesNode {
         min_len: 1,
         pattern: "^[a-zA-Z0-9_-]+$"
     }];
-    optional MaxIterationsCountSource input_maximum_iterations = 6 [(validate.rules).message.required = true];
+
     optional SessionInfo session_info = 7;
 }
 
