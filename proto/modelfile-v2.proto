@@ -137,7 +137,7 @@ message ModelFile {
 	}
 
 	message FileInfo {
-		enum ModelType {
+		enum NetworkType {
 			NT_UNKNOWN                       = 0;
 			NT_CLASSIFICATION                = 1;
 			NT_SEGMENTATION                  = 2;
@@ -168,16 +168,16 @@ message ModelFile {
 			P_UINT64          = 17;
 		}
 
-		string    model_name                  =  1;
-		string    model_id                    =  2;
-		string    model_experiment_id         =  3;
-		string    model_snapshot_id           =  4;
-		ModelType model_type                  =  5;
-		string    model_flavor                =  6;
-		Version   model_version               =  7;
-		Version   runtime_version             =  8;
-		Precision precision                   =  9;
-		Version   minimum_libdenkflow_version = 10;
+		string      network_name                =  1;
+		string      network_id                  =  2;
+		string      network_experiment_id       =  3;
+		string      network_snapshot_id         =  4;
+		NetworkType network_type                =  5;
+		string      network_flavor              =  6;
+		Version     network_version             =  7;
+		Version     runtime_version             =  8;
+		Precision   precision                   =  9;
+		Version     minimum_libdenkflow_version = 10;
 	}
 
 	message FileContent {
