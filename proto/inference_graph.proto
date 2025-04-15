@@ -80,8 +80,8 @@ message ImageResizeNode {
 message ImagePatchesNode {
     message TargetSizeSource {
         message ImageSize {
-            uint64 height = 1 [(validate.rules).uint64.gte = 0];
-            uint64 width = 2 [(validate.rules).uint64.gte = 0];
+            int64 height = 1 [(validate.rules).int64.gte = 0];
+            int64 width = 2 [(validate.rules).int64.gte = 0];
         }
         oneof source {
             option (validate.required) = true;
