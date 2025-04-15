@@ -1,6 +1,6 @@
 [package]
 name = "denkproto-rs"
-version = "1.0.74"
+version = "1.0.75"
 edition = "2021"
 description = "protobuf files for denkweit ecosystem"
 license = "MIT"
