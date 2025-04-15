@@ -79,7 +79,7 @@ message ModelFile {
 			RegionFromEdge region_of_interest                      = 3;
 		}
 
-		oneof FormatInformation {
+		oneof format_information {
 			ImageInputFormat image_format = 1;
 		}
 	}
@@ -127,7 +127,7 @@ message ModelFile {
 			repeated Character characters           = 2;
 		}
 
-		oneof FormatInformation {
+		oneof format_information {
 			ImageClassifiersOutputFormat         image_classifiers_format          = 1;
 			SegmentationMapsOutputFormat         segmentation_maps_format          = 2;
 			BoundingBoxesOutputFormat            bounding_boxes_format             = 3;
@@ -137,13 +137,7 @@ message ModelFile {
 	}
 
 	message FileInfo {
-		enum FileType {
-			FT_MODEL        = 0;
-			FT_ZXING_KEY    = 1; // TODO: remove
-			FT_VIZIOTIX_KEY = 2; // TODO: remove
-		}
-
-		enum NetworkType {
+		enum ModelType {
 			NT_UNKNOWN                       = 0;
 			NT_CLASSIFICATION                = 1;
 			NT_SEGMENTATION                  = 2;
@@ -172,36 +166,42 @@ message ModelFile {
 			P_UINT16          = 15;
 			P_UINT32          = 16;
 			P_UINT64          = 17;
-			P_2_STATE         = 18;
-			P_3_STATE         = 19;
-			P_4_STATE         = 20;
 		}
 
-		enum HardwareTarget {
-			HT_DEFAULT  = 0;
-			HT_TENSORRT = 1;
+		string    model_name                  =  1;
+		string    model_id                    =  2;
+		string    model_experiment_id         =  3;
+		string    model_snapshot_id           =  4;
+		ModelType model_type                  =  5;
+		string    model_flavor                =  6;
+		Version   model_version               =  7;
+		Version   runtime_version             =  8;
+		Precision precision                   =  9;
+		Version   minimum_libdenkflow_version = 10;
+	}
+
+	message FileContent {
+		message DefaultModel {
+			Content model_data = 1;
 		}
 
-		FileType       file_type                   =  1;
-		string         network_name                =  2;
-		string         network_id                  =  3;
-		string         network_experiment_id       =  4;
-		string         network_snapshot_id         =  5;
-		NetworkType    network_type                =  6;
-		string         network_flavor              =  7;
-		Version        network_version             =  8;
-		Version        runtime_version             =  9;
-		Precision      precision                   = 10;
-		Version        minimum_libdenkflow_version = 11;
-		HardwareTarget hardware_target             = 12;
+		message TensorRTModel {
+			Content model_data              = 1;
+			Content calibration_cache       = 2;
+			Content calibration_flatbuffers = 3;
+		}
+
+		oneof file_type {
+			DefaultModel  default_model  = 1;
+			TensorRTModel tensorrt_model = 2;
+		}
 	}
 
 			 Version              protocol_version   = 1;
 			 int64                created_at         = 2;
 			 FileInfo             file_info          = 3 [(validate.rules).message.required = true];
-			 Content              content            = 4;
+			 FileContent          file_content       = 4 [(validate.rules).message.required = true];
 	repeated ClassLabel           class_labels       = 5;
 	repeated Input                inputs             = 6;
 	repeated Output               outputs            = 7;
-			 map<string, Content> additional_content = 8; // filename (or other identifier) to file content
 }
